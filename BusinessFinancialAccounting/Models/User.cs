@@ -16,7 +16,6 @@ namespace BusinessFinancialAccounting.Models
         public string Phone { get; set; }
         [Required]
         public string Email { get; set; }
-        public CashRegister? CashRegister { get; set; }
 
     }
 }
