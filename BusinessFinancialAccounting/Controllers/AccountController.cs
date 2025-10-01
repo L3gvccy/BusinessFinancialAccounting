@@ -37,5 +37,24 @@ namespace BusinessFinancialAccounting.Controllers
 
             return RedirectToAction("Login");
         }
+
+        public IActionResult Login()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult Login(string username, string password)
+        {
+            var user = _context.Users.FirstOrDefault(u => u.Username == username && u.Password == password);
+
+            if (user == null)
+            {
+                ModelState.AddModelError("", "Невірний логін або пароль");
+                return View();
+            }
+
+            return RedirectToAction("Index", "Home"); 
+        }
     }
 }
