@@ -19,20 +19,41 @@ namespace BusinessFinancialAccounting.Controllers
         }
 
         [HttpPost]
-        public IActionResult Register(User user)
+        public IActionResult Register(string username, string fullName, string password, string confirmPassword, string phone, string email, int cashBalance, int cardBalance)
         {
-            if (!ModelState.IsValid) 
+
+            if (password != confirmPassword)
             {
-                return View(user);
+                ModelState.AddModelError("", "Паролі не співпадають!");
+                return View();
             }
 
-            if (_context.Users.Any(u => u.Username == user.Username))
+            if (_context.Users.Any(u => u.Username == username))
             {
                 ModelState.AddModelError("", "Такий логін вже існує!");
-                return View(user);
+                return View();
             }
 
+            var user = new User
+            {
+                Username = username,
+                FullName = fullName,
+                Password = password,
+                Phone = phone,
+                Email = email
+            };
+
             _context.Users.Add(user);
+            _context.SaveChanges();
+
+            var cashRegister = new CashRegister
+            {
+                User = user,
+                CashBalance = cashBalance,
+                CardBalance = cardBalance
+            };
+
+            _context.CashRegisters.Add(cashRegister);
             _context.SaveChanges();
 
             return RedirectToAction("Login");
