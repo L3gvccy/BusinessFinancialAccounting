@@ -1,8 +1,65 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Головна";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="container mt-5">
+    <div class="text-center">
+        <h1 class="display-4">Ведення фінансового обліку малого бізнесу</h1>
+        <p class="lead">Автоматизований розрахунок податків та зручне управління фінансами</p>
+    </div>
+
+    <div class="row mt-5">
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 rounded">
+                <div class="card-body text-center">
+                    <h5 class="card-title">📊 Облік доходів та витрат</h5>
+                    <p class="card-text">Додавайте операції, відстежуйте прибутки та контролюйте витрати.</p>
+					@if (User.Identity != null && User.Identity.IsAuthenticated)
+					{
+						<a asp-area="" asp-controller="Home" asp-action="Index" class="btn btn-primary">Перейти</a>
+					}
+					else
+					{
+						<a asp-area="" asp-controller="Account" asp-action="Login" class="btn btn-primary">Увійти</a>
+					}
+
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 rounded">
+                <div class="card-body text-center">
+                    <h5 class="card-title">💰 Автоматичний розрахунок податків</h5>
+                    <p class="card-text">Система самостійно обчислює податки відповідно до обраної системи.</p>
+                    @if (User.Identity != null && User.Identity.IsAuthenticated)
+                    {
+                        <a asp-area="" asp-controller="Home" asp-action="Index" class="btn btn-primary">Розрахувати</a>
+                    }
+                    else
+                    {
+                        <a asp-area="" asp-controller="Account" asp-action="Login" class="btn btn-primary">Увійти</a>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 rounded">
+                <div class="card-body text-center">
+                    <h5 class="card-title">📑 Звіти та аналітика</h5>
+                    <p class="card-text">Формуйте фінансові звіти та аналізуйте розвиток бізнесу.</p>
+                    @if (User.Identity != null && User.Identity.IsAuthenticated)
+                    {
+                        <a asp-area="" asp-controller="Home" asp-action="Index" class="btn btn-primary">Переглянути</a>
+                    }
+                    else
+                    {
+                        <a asp-area="" asp-controller="Account" asp-action="Login" class="btn btn-primary">Увійти</a>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
 </div>
