@@ -14,7 +14,7 @@
                 <div class="card-body text-center">
                     <h5 class="card-title">📊 Облік доходів та витрат</h5>
                     <p class="card-text">Додавайте операції, відстежуйте прибутки та контролюйте витрати.</p>
-					@if (User.Identity != null && User.Identity.IsAuthenticated)
+                    @if (Context.Session.GetString("Username") != null)
 					{
 						<a asp-area="" asp-controller="Home" asp-action="Index" class="btn btn-primary">Перейти</a>
 					}
@@ -32,7 +32,7 @@
                 <div class="card-body text-center">
                     <h5 class="card-title">💰 Автоматичний розрахунок податків</h5>
                     <p class="card-text">Система самостійно обчислює податки відповідно до обраної системи.</p>
-                    @if (User.Identity != null && User.Identity.IsAuthenticated)
+                    @if (Context.Session.GetString("Username") != null)
                     {
                         <a asp-area="" asp-controller="Home" asp-action="Index" class="btn btn-primary">Розрахувати</a>
                     }
@@ -49,7 +49,7 @@
                 <div class="card-body text-center">
                     <h5 class="card-title">📑 Звіти та аналітика</h5>
                     <p class="card-text">Формуйте фінансові звіти та аналізуйте розвиток бізнесу.</p>
-                    @if (User.Identity != null && User.Identity.IsAuthenticated)
+                    @if (Context.Session.GetString("Username") != null)
                     {
                         <a asp-area="" asp-controller="Home" asp-action="Index" class="btn btn-primary">Переглянути</a>
                     }
