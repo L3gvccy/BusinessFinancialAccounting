@@ -1,4 +1,6 @@
 ﻿using BusinessFinancialAccounting.Models;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -69,13 +71,22 @@ namespace BusinessFinancialAccounting.Controllers
         {
             var user = _context.Users.FirstOrDefault(u => u.Username == username && u.Password == password);
 
-            if (user == null)
+            if (user != null)
             {
-                ModelState.AddModelError("Username", "Невірний логін або пароль");
-                return View();
+                HttpContext.Session.SetString("Username", user.Username);
+                HttpContext.Session.SetString("UserId", user.Id.ToString());
+
+                return RedirectToAction("Index", "Home");
             }
 
-            return RedirectToAction("Index", "Home"); 
+            ModelState.AddModelError("", "Невірний логін або пароль");
+            return View();
+        }
+
+        public IActionResult Logout()
+        {
+            HttpContext.Session.Clear();
+            return RedirectToAction("Index", "Home");
         }
     }
 }
