@@ -26,13 +26,13 @@ namespace BusinessFinancialAccounting.Controllers
 
             if (password != confirmPassword)
             {
-                ModelState.AddModelError("", "Паролі не співпадають!");
+                ModelState.AddModelError("Password", "Паролі не співпадають!");
                 return View();
             }
 
             if (_context.Users.Any(u => u.Username == username))
             {
-                ModelState.AddModelError("", "Такий логін вже існує!");
+                ModelState.AddModelError("Username", "Такий логін вже існує!");
                 return View();
             }
 
@@ -79,7 +79,7 @@ namespace BusinessFinancialAccounting.Controllers
                 return RedirectToAction("Index", "Home");
             }
 
-            ModelState.AddModelError("", "Невірний логін або пароль");
+            ModelState.AddModelError("Username", "Невірний логін або пароль");
             return View();
         }
 

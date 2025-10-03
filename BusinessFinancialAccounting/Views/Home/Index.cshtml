@@ -16,11 +16,11 @@
                     <p class="card-text">Додавайте операції, відстежуйте прибутки та контролюйте витрати.</p>
                     @if (Context.Session.GetString("Username") != null)
 					{
-						<a asp-area="" asp-controller="Home" asp-action="Index" class="btn btn-primary">Перейти</a>
+                        <a asp-area="" asp-controller="Home" asp-action="Index" class="btn btn-primary px-3">Перейти</a>
 					}
 					else
 					{
-						<a asp-area="" asp-controller="Account" asp-action="Login" class="btn btn-primary">Увійти</a>
+                        <a asp-area="" asp-controller="Account" asp-action="Login" class="btn btn-primary px-3">Увійти</a>
 					}
 
                 </div>
@@ -30,15 +30,15 @@
         <div class="col-md-4">
             <div class="card shadow-sm border-0 rounded">
                 <div class="card-body text-center">
-                    <h5 class="card-title">💰 Автоматичний розрахунок податків</h5>
-                    <p class="card-text">Система самостійно обчислює податки відповідно до обраної системи.</p>
+                    <h5 class="card-title">💰 Продаж товарів</h5>
+                    <p class="card-text">Легко відстежуйте наявність та продаж ваших товарів.</p>
                     @if (Context.Session.GetString("Username") != null)
                     {
-                        <a asp-area="" asp-controller="Home" asp-action="Index" class="btn btn-primary">Розрахувати</a>
+                        <a asp-area="" asp-controller="Home" asp-action="Index" class="btn btn-primary px-3">До товарів</a>
                     }
                     else
                     {
-                        <a asp-area="" asp-controller="Account" asp-action="Login" class="btn btn-primary">Увійти</a>
+                        <a asp-area="" asp-controller="Account" asp-action="Login" class="btn btn-primary px-3">Увійти</a>
                     }
                 </div>
             </div>
@@ -51,11 +51,11 @@
                     <p class="card-text">Формуйте фінансові звіти та аналізуйте розвиток бізнесу.</p>
                     @if (Context.Session.GetString("Username") != null)
                     {
-                        <a asp-area="" asp-controller="Home" asp-action="Index" class="btn btn-primary">Переглянути</a>
+                        <a asp-area="" asp-controller="Home" asp-action="Index" class="btn btn-primary px-3">Переглянути</a>
                     }
                     else
                     {
-                        <a asp-area="" asp-controller="Account" asp-action="Login" class="btn btn-primary">Увійти</a>
+                        <a asp-area="" asp-controller="Account" asp-action="Login" class="btn btn-primary px-3">Увійти</a>
                     }
                 </div>
             </div>
