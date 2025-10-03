@@ -17,22 +17,19 @@
     <header>
         <nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
             <div class="container">
-                <!-- Логотип -->
                 <a class="navbar-brand fw-bold" asp-controller="Home" asp-action="Index">
                     Logo
                 </a>
-                <!-- Кнопка для мобільного меню -->
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                     <span class="navbar-toggler-icon"></span>
                 </button>
 
                 <div class="collapse navbar-collapse" id="navbarNav">
-                    <!-- Ліве меню -->
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                         <li class="nav-item">
                             <a class="nav-link" asp-controller="Home" asp-action="Index">Головна</a>
                         </li>
-                        @if (User.Identity != null && User.Identity.IsAuthenticated)
+                        @if (Context.Session.GetString("Username") != null)
                         {
                             <li class="nav-item">
                                 <a class="nav-link" asp-controller="Home" asp-action="Index">Каса</a>
@@ -49,13 +46,12 @@
                         }
                     </ul>
 
-                    <!-- Правий блок (авторизація) -->
                     <ul class="navbar-nav">
-                        @if (User.Identity != null && User.Identity.IsAuthenticated)
+                        @if (Context.Session.GetString("Username") != null)
                         {
                             <li class="nav-item">
                                 <span class="navbar-text text-dark me-2">
-                                    Привіт, @User.Identity.Name
+                                    Привіт, @Context.Session.GetString("Username")
                                 </span>
                             </li>
                             <li class="nav-item">
@@ -79,14 +75,12 @@
         </nav>
     </header>
 
-    <!-- Основний контент -->
     <div class="container flex-grow-1">
         <main role="main" class="pb-3">
             @RenderBody()
         </main>
     </div>
 
-    <!-- Футер завжди внизу -->
     <footer class="text-center mt-auto text-muted py-3 bg-light shadow-sm">
         <p>&copy; @DateTime.Now.Year - Ведення фінансового обліку малого бізнесу</p>
     </footer>

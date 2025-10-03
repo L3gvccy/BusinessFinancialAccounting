@@ -71,7 +71,7 @@ namespace BusinessFinancialAccounting.Controllers
 
             if (user == null)
             {
-                ModelState.AddModelError("", "Невірний логін або пароль");
+                ModelState.AddModelError("Username", "Невірний логін або пароль");
                 return View();
             }
 

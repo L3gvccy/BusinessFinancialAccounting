@@ -1,48 +1,69 @@
 ﻿@model BusinessFinancialAccounting.Models.User
 
-<h2>Реєстрація</h2>
-
-<form asp-action="Register" method="post">
-    <div class="mb-3">
-        <label class="form-label">Логін:</label>
-        <input asp-for="Username" />
-        <span asp-validation-for="Username"></span>
-    </div>
-
-    <div class="mb-3">
-        <label class="form-label">ПІБ:</label>
-        <input asp-for="FullName" />
-        <span asp-validation-for="FullName"></span>
-    </div>
-
-    <div class="mb-3">
-        <label class="form-label">Пароль:</label>
-        <input asp-for="Password" type="password" />
-        <span asp-validation-for="Password"></span>
-    </div>
-    <div class="mb-3">
-        <label class="form-label">Підтвердження пароля:</label>
-        <input name="confirmPassword" type="password" />
-    </div>
-    <div class="mb-3">
-        <label class="form-label">Телефон:</label>
-        <input asp-for="Phone" />
-        <span asp-validation-for="Phone"></span>
-    </div>
-    <div class="mb-3">
-        <label class="form-label">Email:</label>
-        <input asp-for="Email" type="email" />
-        <span asp-validation-for="Email"></span>
-    </div>
-    <div class="mb-3">
-        <label class="form-label">Стартовий капітал (готівка):</label>
-        <input name="cashBalance" type="number" />
-    </div>
-    <div class="mb-3">
-        <label class="form-label">Стартовий капітал (карта):</label>
-        <input name="cardBalance" type="number" />
-    </div>
-    <button type="submit" class="btn btn-primary">Зареєструватися</button>
-</form>
 
 
+<div class="d-block mx-auto my-3 p-3" style="max-width: 500px">
+    <h2 class="text-center my-3">Реєстрація</h2>
+
+    <form asp-action="Register" method="post" style="width: 100%">
+        <fieldset class="border rounded-3 p-3 mb-4">
+            <legend class="float-none w-auto px-2 fs-5">Дані користувача</legend>
+
+            <div class="mb-3">
+                <label for="Username" class="form-label">Логін</label>
+                <input asp-for="Username" class="form-control" />
+                <span asp-validation-for="Username" class="text-danger small"></span>
+            </div>
+
+            <div class="mb-3">
+                <label for="FullName" class="form-label">ПІБ</label>
+                <input asp-for="FullName" class="form-control" />
+                <span asp-validation-for="FullName" class="text-danger small"></span>
+            </div>
+
+            <div class="mb-3">
+                <label for="Password" class="form-label">Пароль</label>
+                <input asp-for="Password" type="password" class="form-control" />
+                <span asp-validation-for="Password" class="text-danger small"></span>
+            </div>
+
+            <div class="mb-3">
+                <label for="confirmPassword" class="form-label">Підтвердження пароля</label>
+                <input name="confirmPassword" type="password" class="form-control" />
+            </div>
+
+            <div class="mb-3">
+                <label for="Phone" class="form-label">Телефон</label>
+                <input asp-for="Phone" class="form-control" />
+                <span asp-validation-for="Phone" class="text-danger small"></span>
+            </div>
+
+            <div class="mb-3">
+                <label for="Email" class="form-label">Email</label>
+                <input asp-for="Email" type="email" class="form-control" />
+                <span asp-validation-for="Email" class="text-danger small"></span>
+            </div>
+        </fieldset>
+
+        <fieldset class="border rounded-3 p-3 mb-4">
+            <legend class="float-none w-auto px-2 fs-5">Стартовий капітал</legend>
+
+            <div class="mb-3">
+                <label for="cashBalance" class="form-label">Готівка</label>
+                <input name="cashBalance" type="number" class="form-control" />
+            </div>
+
+            <div class="mb-3">
+                <label for="cardBalance" class="form-label">Карта</label>
+                <input name="cardBalance" type="number" class="form-control" />
+            </div>
+        </fieldset>
+
+        <button type="submit" class="btn btn-primary w-100">Зареєструватися</button>
+        <p class="text-center mt-3 mb-2">Вже маєте акаунт?</p>
+        <div class="d-flex justify-content-center">
+            <a asp-controller="Account" asp-action="Login">Увійти</a>
+        </div>
+
+    </form>
+</div>
