@@ -1,0 +1,58 @@
+﻿@{
+    ViewData["Title"] = "Баланс";
+}
+
+<div class="container mt-4">
+    <h2 class="text-center mb-4">Баланс</h2>
+
+    <div class="row justify-content-center">
+        <div class="col-md-5">
+            <div class="card shadow-sm border-success">
+                <div class="card-body text-center">
+                    <h2 class="card-title">Готівковий баланс</h2>
+                    <h1 class="display-6 fw-bold text-success">@Model.CashBalance ₴</h1>
+
+                    <div class="d-flex justify-content-center gap-3 mt-3">
+                        <button class="btn btn-outline-success w-50">Внести</button>
+                        <button class="btn btn-outline-danger w-50">Видати</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-5 mt-4 mt-md-0">
+            <div class="card shadow-sm border-primary">
+                <div class="card-body text-center">
+                    <h2 class="card-title">Баланс картки</h2>
+                    <h1 class="display-6 fw-bold text-primary">@Model.CardBalance ₴</h1>
+
+                    <div class="d-flex justify-content-center gap-3 mt-3">
+                        <button class="btn btn-outline-primary w-50">Внести</button>
+                        <button class="btn btn-outline-danger w-50">Видати</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="transactionModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content" id="transactionModalContent">
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function openTransactionModal(accountType, actionType) {
+            fetch(`/Balance/TransactionForm?accountType=${accountType}&actionType=${actionType}`)
+                .then(response => response.text())
+                .then(html => {
+                    document.getElementById('transactionModalContent').innerHTML = html;
+                    const modal = new bootstrap.Modal(document.getElementById('transactionModal'));
+                    modal.show();
+                });
+        }
+    </script>
+}
