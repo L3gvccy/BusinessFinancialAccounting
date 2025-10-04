@@ -1,0 +1,40 @@
+﻿@model BusinessFinancialAccounting.Models.TransactionViewModel
+
+<form id="transactionForm" method="post" asp-controller="Cash" asp-action="TransactionForm">
+    <input type="hidden" name="AccountType" value="@Model.AccountType" />
+    <input type="hidden" name="ActionType" value="@Model.ActionType" />
+
+    <div class="mb-3">
+        <label class="form-label">Сума</label>
+        <input asp-for="MoneyAmount" type="number" class="form-control" min="1" required />
+        @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+        {
+            <div class="text-danger mt-1">@Model.ErrorMessage</div>
+        }
+    </div>
+
+    <button type="submit" class="btn btn-primary">Підтвердити</button>
+</form>
+
+<script>
+    $("#transactionForm").on("submit", function (e) {
+        e.preventDefault();
+        var form = $(this);
+        $.ajax({
+            url: form.attr("action"),
+            type: "POST",
+            data: form.serialize(),
+            success: function (response) {
+                if (response.success) {
+                    $("#transactionModal").modal("hide");
+                    location.reload();
+                } else {
+                    $("#transactionModal .modal-content").html(response);
+                }
+            },
+            error: function () {
+                alert("Сталася помилка при обробці запиту.");
+            }
+        });
+    });
+</script>

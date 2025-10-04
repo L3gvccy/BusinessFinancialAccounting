@@ -8,7 +8,7 @@ namespace BusinessFinancialAccounting.Controllers
 {
     public class CashController : Controller
     {
-        private AppDbContext _context;
+        private readonly AppDbContext _context;
 
         public CashController(AppDbContext context)
         {
@@ -21,40 +21,72 @@ namespace BusinessFinancialAccounting.Controllers
             if (userIdStr == null) return RedirectToAction("Login", "Account");
 
             int userId = int.Parse(userIdStr);
-
             var cashRegister = _context.CashRegisters.FirstOrDefault(c => c.User.Id == userId);
 
             return View(cashRegister);
         }
 
+        // Відображення модального вікна
+        [HttpGet]
+        public IActionResult TransactionForm(string accountType, string actionType)
+        {
+            var model = new TransactionViewModel
+            {
+                AccountType = accountType,
+                ActionType = actionType
+            };
+
+            return PartialView("_TransactionForm", model);
+        }
+
+        // Обробка введеної суми
         [HttpPost]
-        public IActionResult UpdateBalance(int cashIncrease, int cashDecrease, int cardIncrease, int cardDecrease)
+        public IActionResult TransactionForm(TransactionViewModel model)
         {
             var userIdStr = HttpContext.Session.GetString("UserId");
             if (userIdStr == null) return RedirectToAction("Login", "Account");
 
             int userId = int.Parse(userIdStr);
-
             var cashRegister = _context.CashRegisters.FirstOrDefault(c => c.User.Id == userId);
-            if (cashRegister == null) return RedirectToAction("CashRegister");
+            if (cashRegister == null) return NotFound();
 
-            cashRegister.CashBalance += cashIncrease - cashDecrease;
-            cashRegister.CardBalance += cardIncrease - cardDecrease;
+            if (model.ActionType == "withdraw")
+            {
+                bool notEnough = (model.AccountType == "cash" && model.MoneyAmount > cashRegister.CashBalance)
+                              || (model.AccountType == "card" && model.MoneyAmount > cashRegister.CardBalance);
+
+                if (notEnough)
+                {
+                    model.ErrorMessage = "Сума перевищує доступний баланс!";
+                    return PartialView("_TransactionForm", model);
+                }
+
+                if (model.AccountType == "cash")
+                    cashRegister.CashBalance -= model.MoneyAmount;
+                else
+                    cashRegister.CardBalance -= model.MoneyAmount;
+            }
+            else if (model.ActionType == "deposit")
+            {
+                if (model.AccountType == "cash")
+                    cashRegister.CashBalance += model.MoneyAmount;
+                else
+                    cashRegister.CardBalance += model.MoneyAmount;
+            }
 
             var operation = new FinancialOperation
             {
                 User = _context.Users.Find(userId),
-                CashBalanceIncrease = cashIncrease,
-                CashBalanceDecrease = cashDecrease,
-                CardBalanceIncrease = cardIncrease,
-                CardBalanceDecrease = cardDecrease,
-                TimeStamp = DateTime.Now 
+                CashBalanceIncrease = (model.AccountType == "cash" && model.ActionType == "deposit") ? (int)model.MoneyAmount : 0,
+                CashBalanceDecrease = (model.AccountType == "cash" && model.ActionType == "withdraw") ? (int)model.MoneyAmount : 0,
+                CardBalanceIncrease = (model.AccountType == "card" && model.ActionType == "deposit") ? (int)model.MoneyAmount : 0,
+                CardBalanceDecrease = (model.AccountType == "card" && model.ActionType == "withdraw") ? (int)model.MoneyAmount : 0,
+                TimeStamp = DateTime.Now
             };
 
             _context.FinancialOperations.Add(operation);
             _context.SaveChanges();
-
-            return RedirectToAction("CashBalance");
+            return Json(new { success = true });
         }
     }
 }

@@ -15,8 +15,8 @@
                     <h1 class="display-6 fw-bold text-success">@Model.CashBalance ₴</h1>
 
                     <div class="d-flex justify-content-center gap-3 mt-3">
-                        <button class="btn btn-outline-success w-50">Внести</button>
-                        <button class="btn btn-outline-danger w-50">Видати</button>
+                        <button class="btn btn-outline-success w-50" onclick="openTransaction('cash', 'deposit')">Внести</button>
+                        <button class="btn btn-outline-danger w-50" onclick="openTransaction('cash', 'withdraw')">Видати</button>
                     </div>
                 </div>
             </div>
@@ -29,8 +29,8 @@
                     <h1 class="display-6 fw-bold text-primary">@Model.CardBalance ₴</h1>
 
                     <div class="d-flex justify-content-center gap-3 mt-3">
-                        <button class="btn btn-outline-primary w-50">Внести</button>
-                        <button class="btn btn-outline-danger w-50">Видати</button>
+                        <button class="btn btn-outline-primary w-50" onclick="openTransaction('card', 'deposit')">Внести</button>
+                        <button class="btn btn-outline-danger w-50" onclick="openTransaction('card', 'withdraw')">Видати</button>
                     </div>
                 </div>
             </div>
@@ -47,14 +47,11 @@
 
 @section Scripts {
     <script>
-        function openTransactionModal(accountType, actionType) {
-            fetch(`/Balance/TransactionForm?accountType=${accountType}&actionType=${actionType}`)
-                .then(response => response.text())
-                .then(html => {
-                    document.getElementById('transactionModalContent').innerHTML = html;
-                    const modal = new bootstrap.Modal(document.getElementById('transactionModal'));
-                    modal.show();
-                });
+        function openTransaction(accountType, actionType) {
+            $.get("/Cash/TransactionForm", { accountType: accountType, actionType: actionType }, function (html) {
+                $("#transactionModal .modal-content").html(html);
+                $("#transactionModal").modal("show");
+            });
         }
     </script>
 }
