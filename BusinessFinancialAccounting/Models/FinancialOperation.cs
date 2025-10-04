@@ -12,5 +12,6 @@ namespace BusinessFinancialAccounting.Models
         public int CashBalanceDecrease { get; set; }
         public int CardBalanceIncrease { get; set; }
         public int CardBalanceDecrease { get; set; }
+        public DateTime TimeStamp { get; set; } = DateTime.Now;
     }
 }
