@@ -14,6 +14,14 @@
     }
 </style>
 <body class="d-flex flex-column min-vh-100">
+    @if (TempData["AlertMsg"] != null)
+    {
+        string alertType = TempData["AlertType"]?.ToString() ?? "info";
+        <div class="alert alert-@alertType alert-dismissible fade show" style="position: absolute; top: 10px; right: 10px; z-index: 999;">
+            @TempData["AlertMsg"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
     <header>
         <nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
             <div class="container">

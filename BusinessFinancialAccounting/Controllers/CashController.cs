@@ -62,16 +62,32 @@ namespace BusinessFinancialAccounting.Controllers
                 }
 
                 if (model.AccountType == "cash")
+                {
                     cashRegister.CashBalance -= model.MoneyAmount;
+                    TempData["AlertMsg"] = $"Видача готівки: {model.MoneyAmount} грн.";
+                    TempData["AlertType"] = "success";
+                }
                 else
+                {
                     cashRegister.CardBalance -= model.MoneyAmount;
+                    TempData["AlertMsg"] = $"Видача карткою: {model.MoneyAmount} грн.";
+                    TempData["AlertType"] = "success";
+                }
             }
             else if (model.ActionType == "deposit")
             {
                 if (model.AccountType == "cash")
+                {
                     cashRegister.CashBalance += model.MoneyAmount;
+                    TempData["AlertMsg"] = $"Внесення готівкою: {model.MoneyAmount} грн.";
+                    TempData["AlertType"] = "success";
+                } 
                 else
+                {
                     cashRegister.CardBalance += model.MoneyAmount;
+                    TempData["AlertMsg"] = $"Внесення карткою: {model.MoneyAmount} грн.";
+                    TempData["AlertType"] = "success";
+                }
             }
 
             var operation = new FinancialOperation
@@ -86,7 +102,7 @@ namespace BusinessFinancialAccounting.Controllers
 
             _context.FinancialOperations.Add(operation);
             _context.SaveChanges();
-            return Json(new { success = true });
+            return Json(new { success = "true"});
         }
     }
 }

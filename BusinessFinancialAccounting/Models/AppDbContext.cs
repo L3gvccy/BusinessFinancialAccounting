@@ -11,5 +11,8 @@ namespace BusinessFinancialAccounting.Models
         public DbSet<User> Users { get; set; }
         public DbSet<CashRegister> CashRegisters { get; set; }
         public DbSet<FinancialOperation> FinancialOperations { get; set; }
+        public DbSet<Product> Products { get; set; }
+        public DbSet<ReceiptProduct> ReceiptProducts { get; set; }
+        public DbSet<Receipt> Reciepts { get; set; }
     }
 }
