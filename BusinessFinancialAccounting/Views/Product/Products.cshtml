@@ -1,0 +1,48 @@
+﻿@model IEnumerable<Product>
+@{
+    ViewData["Title"] = "Товари";
+}
+
+<h2>Список товарів</h2>
+
+@if (TempData["Message"] != null)
+{
+    <div class="alert alert-info">@TempData["Message"]</div>
+}
+
+<a asp-action="AddProduct" class="btn btn-success mb-3 px-3">Додати товар</a>
+
+
+@if (!Model.Any())
+{
+    <p class="text-muted">Товарів не знайдено.</p>
+}
+else {
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>Код</th>
+                <th>Назва</th>
+                <th>Кількість</th>
+                <th>Одиниці</th>
+                <th>Ціна</th>
+                <th>Дії</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.Code</td>
+                    <td>@item.Name</td>
+                    <td>@item.Quantity</td>
+                    <td>@item.Units</td>
+                    <td>@item.Price</td>
+                    <td>
+                        <a asp-action="EditProduct" asp-route-id="@item.Id" class="btn btn-sm btn-primary">Редагувати</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
