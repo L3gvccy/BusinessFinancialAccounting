@@ -7,34 +7,27 @@
 }
 
 <div class="container mt-3">
-    <h2>Пункт продажу</h2>
+    <h2 class="text-center">Пункт продажу</h2>
 
-    @if (TempData["AlertMsg"] != null)
-    {
-        <div class="alert alert-@TempData["AlertType"]">@TempData["AlertMsg"]</div>
-    }
-
-    <!-- Форма добавления по коду -->
     <form method="post" asp-action="AddByCode" class="row g-2 mt-3">
         <div class="col-auto"><label for="code" class="col-form-label">Код</label></div>
         <div class="col-auto"><input id="code" name="code" class="form-control" type="number" required /></div>
         <div class="col-auto"><button class="btn btn-primary" type="submit">Додати</button></div>
     </form>
 
-    <!-- Отдельная форма очистки (НЕ внутри предыдущей) -->
     <form method="post" asp-action="Clear" class="mt-2">
-        <button class="btn btn-outline-secondary" type="submit">Очистити</button>
+        <button class="btn btn-outline-danger" type="submit">Очистити</button>
     </form>
 
     <table class="table table-bordered align-middle mt-3">
         <thead>
             <tr>
-                <th style="width:10%">код</th>
-                <th>назва</th>
-                <th style="width:15%">кількість</th>
-                <th style="width:12%">одиниці вимірювання</th>
-                <th style="width:15%">ціна за одну одиницю</th>
-                <th style="width:15%">сума</th>
+                <th style="width:10%">Код</th>
+                <th>Назва</th>
+                <th style="width:15%">Кількість</th>
+                <th style="width:15%">Ціна за одну одиницю</th>
+                <th style="width:12%">Одиниці вимірювання</th>
+                <th style="width:15%">Сума</th>
                 <th style="width:6%"></th>
             </tr>
         </thead>
@@ -54,8 +47,8 @@
                                    onchange="this.form.submit()" />
                         </form>
                     </td>
-                    <td>@p.Units</td>
                     <td>@p.Price.ToString("0.00")</td>
+                    <td>@p.Units</td>
                     <td>@line.ToString("0.00")</td>
                     <td>
                         <form method="post" asp-action="Remove">
@@ -77,10 +70,10 @@
 
     <div class="d-flex gap-2 mt-3">
         <form method="post" asp-action="Pay" asp-route-method="cash">
-            <button class="btn btn-success">Оплатити готівкою</button>
+            <button class="btn btn-success">Оплата готівкою</button>
         </form>
         <form method="post" asp-action="Pay" asp-route-method="card">
-            <button class="btn btn-info">Оплатити карткою</button>
+            <button class="btn btn-info">Оплата карткою</button>
         </form>
     </div>
 </div>

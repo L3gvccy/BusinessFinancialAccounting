@@ -8,8 +8,9 @@ namespace BusinessFinancialAccounting.Models
         public int Id { get; set; }
         [Required]
         public User User { get; set; }
-        public List<ReceiptProduct> Products { get; set; } = new List<ReceiptProduct>();
         public decimal TotalPrice { get; set; }
         public DateTime TimeStamp { get; set; } = DateTime.Now;
+
+        public ICollection<ReceiptProduct> Products { get; set; } = new List<ReceiptProduct>();
     }
 }

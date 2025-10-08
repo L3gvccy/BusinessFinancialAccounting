@@ -199,9 +199,13 @@ namespace BusinessFinancialAccounting.Controllers
                 var q = qty[p.Id];
                 _context.ReceiptProducts.Add(new ReceiptProduct
                 {
-                    Product = p,
+                    Code = p.Code,
+                    Name = p.Name,
+                    Units = p.Units,
+                    Price = p.Price,
                     Quantity = q,
-                    TotalPrice = Math.Round(p.Price * q, 2)
+                    TotalPrice = Math.Round(p.Price * q, 2),
+                    Receipt = receipt
                 });
                 p.Quantity -= q;
             }
@@ -215,28 +219,19 @@ namespace BusinessFinancialAccounting.Controllers
                 _context.CashRegisters.Add(register);
             }
 
-            var op = new FinancialOperation
-            {
-                User = user,
-                TimeStamp = DateTime.Now
-            };
-
             var inc = (int)Math.Round(total, MidpointRounding.AwayFromZero);
             if (method == "cash")
             {
                 register.CashBalance += inc;
-                op.CashBalanceIncrease = inc;
                 TempData["AlertMsg"] = $"Оплата ГОТІВКОЮ: {inc} грн.";
                 TempData["AlertType"] = "success";
             }
             else
             {
                 register.CardBalance += inc;
-                op.CardBalanceIncrease = inc;
                 TempData["AlertMsg"] = $"Оплата КАРТКОЮ: {inc} грн.";
                 TempData["AlertType"] = "success";
             }
-            _context.FinancialOperations.Add(op);
 
             await _context.SaveChangesAsync();
 

@@ -146,21 +146,30 @@ namespace BusinessFinancialAccounting.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("ProductId")
+                    b.Property<int>("Code")
                         .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("Price")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal>("Quantity")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<int?>("ReceiptId")
+                    b.Property<int>("ReceiptId")
                         .HasColumnType("int");
 
                     b.Property<decimal>("TotalPrice")
                         .HasColumnType("decimal(18,2)");
 
-                    b.HasKey("Id");
+                    b.Property<string>("Units")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
-                    b.HasIndex("ProductId");
+                    b.HasKey("Id");
 
                     b.HasIndex("ReceiptId");
 
@@ -246,17 +255,13 @@ namespace BusinessFinancialAccounting.Migrations
 
             modelBuilder.Entity("BusinessFinancialAccounting.Models.ReceiptProduct", b =>
                 {
-                    b.HasOne("BusinessFinancialAccounting.Models.Product", "Product")
-                        .WithMany()
-                        .HasForeignKey("ProductId")
+                    b.HasOne("BusinessFinancialAccounting.Models.Receipt", "Receipt")
+                        .WithMany("Products")
+                        .HasForeignKey("ReceiptId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("BusinessFinancialAccounting.Models.Receipt", null)
-                        .WithMany("Products")
-                        .HasForeignKey("ReceiptId");
-
-                    b.Navigation("Product");
+                    b.Navigation("Receipt");
                 });
 
             modelBuilder.Entity("BusinessFinancialAccounting.Models.Receipt", b =>
