@@ -14,6 +14,6 @@ namespace BusinessFinancialAccounting.Models
         public DbSet<Product> Products { get; set; }
         public DbSet<ReceiptProduct> ReceiptProducts { get; set; }
         public DbSet<Receipt> Reciepts { get; set; }
-
+        public DbSet<Report> Reports { get; set; }
     }
 }

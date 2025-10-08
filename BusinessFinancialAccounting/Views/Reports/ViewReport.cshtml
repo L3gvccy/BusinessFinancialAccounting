@@ -1,0 +1,83 @@
+﻿@model BusinessFinancialAccounting.Models.Report
+@{
+    ViewData["Title"] = "Перегляд звіту";
+}
+
+<h2>Звіт #@Model.Id</h2>
+<p>Користувач: <strong>@Model.User.FullName</strong></p>
+<p>Період: <strong>@Model.StartDate.ToString("dd.MM.yyyy")</strong> - <strong>@Model.EndDate.ToString("dd.MM.yyyy")</strong></p>
+
+<h4>Підсумки</h4>
+<table class="table table-bordered table-sm w-50">
+    <tr>
+        <th>Продажі готівкою</th>
+        <td>@Model.CashSales.ToString("F2")</td>
+    </tr>
+    <tr>
+        <th>Продажі карткою</th>
+        <td>@Model.CardSales.ToString("F2")</td>
+    </tr>
+    <tr>
+        <th>Витрати готівкою</th>
+        <td>@Model.CashWithdrawals.ToString("F2")</td>
+    </tr>
+    <tr>
+        <th>Витрати карткою</th>
+        <td>@Model.CardWithdrawals.ToString("F2")</td>
+    </tr>
+    <tr>
+        <th>Внесення готівкою</th>
+        <td>@Model.CashDeposits.ToString("F2")</td>
+    </tr>
+    <tr>
+        <th>Внесення карткою</th>
+        <td>@Model.CardDeposits.ToString("F2")</td>
+    </tr>
+    <tr>
+        <th>Прибуток готівкою</th>
+        <td>@Model.CashProfit.ToString("F2")</td>
+    </tr>
+    <tr>
+        <th>Прибуток карткою</th>
+        <td>@Model.CardProfit.ToString("F2")</td>
+    </tr>
+    <tr>
+        <th>Податок (19,5%)</th>
+        <td>@Model.Tax.ToString("F2")</td>
+    </tr>
+</table>
+
+<h4 class="mt-4">Чеки за період</h4>
+<div class="row">
+    <div class="col-4">
+        <ul class="list-group" id="receiptList">
+            @foreach (var r in ViewBag.Receipts)
+            {
+                <li class="list-group-item d-flex justify-content-between align-items-center receipt-item" data-id="@r.Id">
+                    <span>#@r.Id - @r.TimeStamp.ToString("dd.MM.yyyy")</span>
+                    <span>@r.TotalPrice.ToString("F2")</span>
+                </li>
+            }
+        </ul>
+    </div>
+    <div class="col-8">
+        <div id="receiptDetails">
+            <em>Виберіть чек для перегляду деталей</em>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.querySelectorAll('.receipt-item').forEach(item => {
+            item.addEventListener('click', function () {
+                const receiptId = this.dataset.id;
+                fetch('@Url.Action("GetReceiptDetails", "Reports")?receiptId=' + receiptId)
+                    .then(r => r.text())
+                    .then(html => {
+                        document.getElementById('receiptDetails').innerHTML = html;
+                    });
+            });
+        });
+    </script>
+}

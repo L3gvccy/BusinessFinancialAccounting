@@ -1,0 +1,28 @@
+﻿@model BusinessFinancialAccounting.Models.Receipt
+
+<h6>Чек #@Model.Id - @Model.TimeStamp.ToString("dd.MM.yyyy HH:mm:ss")</h6>
+<p>Метод оплати: <strong>@Model.PaymentMethod</strong></p>
+<table class="table table-bordered table-sm">
+    <thead>
+        <tr>
+            <th>Код</th>
+            <th>Назва</th>
+            <th>Кількість</th>
+            <th>Ціна</th>
+            <th>Всього</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var p in Model.Products)
+        {
+            <tr>
+                <td>@p.Code</td>
+                <td>@p.Name</td>
+                <td>@p.Quantity</td>
+                <td>@p.Price.ToString("F2")</td>
+                <td>@p.TotalPrice.ToString("F2")</td>
+            </tr>
+        }
+    </tbody>
+</table>
+<p><strong>Сума чеку: @Model.TotalPrice.ToString("F2")</strong></p>

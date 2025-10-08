@@ -1,0 +1,105 @@
+﻿@model dynamic
+@{
+    ViewData["Title"] = "Звіти";
+}
+
+<h2 class="my-3 text-center">Звіти</h2>
+
+<form asp-action="GenerateReport" method="post" class="mb-3">
+    <div class="row g-2 align-items-end">
+        <div class="col-auto">
+            <label>Дата початку:</label>
+            <input type="date" name="startDate" class="form-control" required />
+        </div>
+        <div class="col-auto">
+            <label>Дата кінця:</label>
+            <input type="date" name="endDate" class="form-control" required />
+        </div>
+        <div class="col-auto">
+            <button type="submit" class="btn btn-primary">Сформувати звіт</button>
+        </div>
+    </div>
+</form>
+
+<div class="row mt-4">
+    <div class="col-4">
+        <h5>Список чеків</h5>
+        <ul class="list-group" id="receiptList">
+            @foreach (var r in ViewBag.Receipts)
+            {
+                <li class="list-group-item d-flex justify-content-between align-items-center receipt-item" data-id="@r.Id">
+                    <span>#@r.Id - @r.TimeStamp.ToString("dd.MM.yyyy")</span>
+                    <span>@r.TotalPrice.ToString("F2")</span>
+                </li>
+            }
+        </ul>
+    </div>
+
+    <div class="col-8">
+        <h5>Деталі чеку</h5>
+        <div id="receiptDetails">
+            <em>Виберіть чек, щоб побачити деталі</em>
+        </div>
+    </div>
+</div>
+
+<hr />
+
+<h4 class="my-3 text-center">Сформовані звіти</h4>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Id</th>
+            <th>Дата початку</th>
+            <th>Дата кінця</th>
+            <th>Прибуток готівкою</th>
+            <th>Прибуток карткою</th>
+            <th>Податок</th>
+            <th>Дії</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var rep in ViewBag.Reports)
+        {
+            <tr>
+                <td>@rep.Id</td>
+                <td>@rep.StartDate.ToString("dd.MM.yyyy")</td>
+                <td>@rep.EndDate.ToString("dd.MM.yyyy")</td>
+                <td>@rep.CashProfit.ToString("F2")</td>
+                <td>@rep.CardProfit.ToString("F2")</td>
+                <td>@rep.Tax.ToString("F2")</td>
+                <td>
+                    <a asp-action="ViewReport" asp-route-id="@rep.Id" class="btn btn-sm btn-primary">Переглянути</a>
+
+                    <form asp-action="DeleteReport" method="post" style="display:inline;"
+                          onsubmit="return confirm('Ви впевнені, що хочете видалити звіт?');">
+                        <input type="hidden" name="id" value="@rep.Id" />
+                        <button type="submit" class="btn btn-sm btn-danger">Видалити</button>
+                    </form>
+
+                    <form asp-action="RegenerateReport" method="post" style="display:inline;">
+                        <input type="hidden" name="id" value="@rep.Id" />
+                        <button type="submit" class="btn btn-sm btn-warning">Переформувати</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+
+
+@section Scripts {
+    <script>
+        document.querySelectorAll('.receipt-item').forEach(item => {
+            item.addEventListener('click', function () {
+                const receiptId = this.dataset.id;
+                fetch('@Url.Action("GetReceiptDetails")?receiptId=' + receiptId)
+                    .then(r => r.text())
+                    .then(html => {
+                        document.getElementById('receiptDetails').innerHTML = html;
+                    });
+            });
+        });
+    </script>
+}
