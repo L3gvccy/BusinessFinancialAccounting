@@ -10,7 +10,8 @@ namespace BusinessFinancialAccounting.Models
         public User User { get; set; }
         public decimal TotalPrice { get; set; }
         public DateTime TimeStamp { get; set; } = DateTime.Now;
-
+        [Required]
+        public string PaymentMethod { get; set; }
         public ICollection<ReceiptProduct> Products { get; set; } = new List<ReceiptProduct>();
     }
 }

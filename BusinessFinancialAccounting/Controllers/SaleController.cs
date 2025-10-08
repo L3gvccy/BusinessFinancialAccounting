@@ -97,19 +97,12 @@ namespace BusinessFinancialAccounting.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> ChangeQty([FromForm] int productId, [FromForm] decimal qty)
+        public async Task<IActionResult> ChangeQty([FromForm] int productId, [FromForm] string qty)
         {
             var userId = TryGetUserId();
             if (userId == null) return RedirectToAction("Login", "Account");
 
             var cart = GetCart();
-
-            if (qty <= 0)
-            {
-                cart.Remove(productId);
-                SaveCart(cart);
-                return RedirectToAction("Sale");
-            }
 
             var product = await _context.Products
                 .Include(p => p.User)
@@ -124,17 +117,39 @@ namespace BusinessFinancialAccounting.Controllers
                 return RedirectToAction("Sale");
             }
 
-            if (qty > product.Quantity)
+            // Конвертуємо рядок у decimal
+            if (!decimal.TryParse(qty, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out decimal qtyDecimal))
             {
-                cart[productId] = product.Quantity;
-                SaveCart(cart);
-                TempData["AlertMsg"] = $"Недостатньо залишку для \"{product.Name}\": максимум {product.Quantity} {product.Units}.";
+                // некоректний ввід — залишаємо попередню кількість
+                TempData["AlertMsg"] = $"Неправильне значення кількості для \"{product.Name}\".";
                 TempData["AlertType"] = "warning";
                 return RedirectToAction("Sale");
             }
 
-            cart[productId] = qty;
+            // Встановлюємо крок
+            decimal step = product.Units == "шт" ? 1m : 0.001m;
+            qtyDecimal = Math.Round(qtyDecimal / step) * step;
+
+            if (product.Units == "шт" && qtyDecimal < 1)
+                qtyDecimal = 1;
+
+            if (product.Units == "кг" && qtyDecimal <= 0)
+            {
+                cart.Remove(productId);
+                SaveCart(cart);
+                return RedirectToAction("Sale");
+            }
+
+            if (qtyDecimal > product.Quantity)
+            {
+                qtyDecimal = product.Quantity;
+                TempData["AlertMsg"] = $"Недостатньо залишку для \"{product.Name}\": максимум {product.Quantity} {product.Units}.";
+                TempData["AlertType"] = "warning";
+            }
+
+            cart[productId] = qtyDecimal;
             SaveCart(cart);
+
             return RedirectToAction("Sale");
         }
 
@@ -190,7 +205,8 @@ namespace BusinessFinancialAccounting.Controllers
             {
                 User = user,
                 TotalPrice = total,
-                TimeStamp = DateTime.Now
+                TimeStamp = DateTime.Now,
+                PaymentMethod = method.ToLower()
             };
             _context.Reciepts.Add(receipt);
 
