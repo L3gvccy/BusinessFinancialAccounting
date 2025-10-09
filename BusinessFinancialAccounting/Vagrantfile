@@ -1,0 +1,61 @@
+Vagrant.configure("2") do |config|
+  # Базова Ubuntu
+  config.vm.box = "ubuntu/focal64"
+
+  # Forward портів
+  config.vm.network "forwarded_port", guest: 5000, host: 5000
+
+  config.vm.provider "virtualbox" do |vb|
+    vb.memory = "4096"
+    vb.cpus = 2
+  end
+
+  config.vm.provision "shell", inline: <<-SHELL
+    set -e
+
+    echo "=== Updating system ==="
+    sudo apt-get update -y
+    sudo apt-get upgrade -y
+
+    echo "=== Installing prerequisites ==="
+    sudo apt-get install -y wget apt-transport-https software-properties-common unzip git curl
+
+    echo "=== Installing .NET SDK 8 ==="
+    wget https://packages.microsoft.com/config/ubuntu/20.04/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
+    sudo dpkg -i packages-microsoft-prod.deb
+    sudo apt-get update -y
+    sudo apt-get install -y dotnet-sdk-8.0
+
+    echo "=== Installing Mono ==="
+    sudo apt-get install -y mono-complete
+
+    echo "=== Installing Docker ==="
+    sudo apt-get install -y docker.io
+    sudo systemctl enable docker
+    sudo systemctl start docker
+
+    echo "=== Starting SQL Server 2019 container ==="
+    docker rm -f sqlserver || true
+    docker run -e "ACCEPT_EULA=Y" -e "SA_PASSWORD=YourStrong\!Passw0rd" \
+      -p 1433:1433 --name sqlserver -d mcr.microsoft.com/mssql/server:2019-latest
+
+    echo "=== Waiting for SQL Server to start ==="
+    sleep 20
+
+    echo "=== Building and running MVC app ==="
+    cd /vagrant
+
+    dotnet new tool-manifest || true
+    dotnet tool install dotnet-ef --version 8.* || true
+
+    # Видаляємо DocFX, якщо ще є
+    dotnet remove package docfx.console || echo "DocFX already removed"
+
+    dotnet restore
+    dotnet build -c Release -p:BuildDocfx=false
+    dotnet tool run dotnet-ef database update
+
+    nohup dotnet run -c Release --urls "http://0.0.0.0:5000" > /home/vagrant/app.log 2>&1 &
+    echo "✅ MVC application is running on http://localhost:5000"
+  SHELL
+end
