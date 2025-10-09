@@ -24,5 +24,20 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
   </ItemGroup>
+  
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+
+    <PackageId>BusinessFinancialAccounting</PackageId>
+    <Version>1.0.0</Version>
+    <Authors>IvanovAltunian</Authors>
+    <Company>IPZ/33/6</Company>
+    <Description>BusinessFinancialAccounting</Description>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <RepositoryUrl>https://github.com/L3gvccy/BusinessFinancialAccounting.git</RepositoryUrl>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+	<IsPackable>true</IsPackable> 
+  </PropertyGroup>
 
 </Project>
