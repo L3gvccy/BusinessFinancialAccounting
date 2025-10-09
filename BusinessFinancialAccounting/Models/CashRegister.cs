@@ -2,6 +2,9 @@
 
 namespace BusinessFinancialAccounting.Models
 {
+    /// <summary>
+    /// Модель касового апарату, що зберігає інформацію про баланс готівки та картки для користувача.
+    /// </summary>
     public class CashRegister
     {
         [Key]
