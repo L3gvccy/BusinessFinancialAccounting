@@ -1,5 +1,8 @@
 ﻿namespace BusinessFinancialAccounting.Models
 {
+    /// <summary>
+    /// Модель для проведення фінансової операції
+    /// </summary>
     public class TransactionViewModel
     {
         public string AccountType { get; set; }   // "cash" або "card"

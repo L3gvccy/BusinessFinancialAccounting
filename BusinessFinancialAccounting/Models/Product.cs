@@ -2,6 +2,9 @@
 
 namespace BusinessFinancialAccounting.Models
 {
+    /// <summary>
+    /// Клас товару
+    /// </summary>
     public class Product
     {
         [Key]

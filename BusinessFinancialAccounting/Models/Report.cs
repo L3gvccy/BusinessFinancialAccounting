@@ -2,6 +2,9 @@
 
 namespace BusinessFinancialAccounting.Models
 {
+    /// <summary>
+    /// Звіт
+    /// </summary>
     public class Report
     {
         [Key]

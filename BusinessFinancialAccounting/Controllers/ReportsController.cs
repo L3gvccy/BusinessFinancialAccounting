@@ -4,6 +4,9 @@ using BusinessFinancialAccounting.Models;
 
 namespace BusinessFinancialAccounting.Controllers
 {
+    /// <summary>
+    /// Контролер для управління фінансовими звітами користувача.
+    /// </summary>
     public class ReportsController : Controller
     {
         private readonly AppDbContext _context;
@@ -13,12 +16,20 @@ namespace BusinessFinancialAccounting.Controllers
             _context = context;
         }
 
+        /// <summary>
+        /// Спроба отримати ID користувача з сесії.
+        /// </summary>
+        /// <returns>ID користувача, або null, якщо користувач не авторизований.</returns>
         private int? TryGetUserId()
         {
             var s = HttpContext.Session.GetString("UserId");
             return string.IsNullOrEmpty(s) ? (int?)null : int.Parse(s);
         }
 
+        /// <summary>
+        /// Показує головну сторінку звітів користувача.
+        /// </summary>
+        /// <returns>Представлення зі списком отриманих чеків та звітів користувача.</returns>
         public async Task<IActionResult> Index()
         {
             var userId = TryGetUserId();
@@ -41,6 +52,12 @@ namespace BusinessFinancialAccounting.Controllers
             return View();
         }
 
+        /// <summary>
+        /// Генерує новий фінансовий звіт за вказаний період.
+        /// </summary>
+        /// <param name="startDate">Дата початку звітного періоду.</param>
+        /// <param name="endDate">Дата кінця звітного періоду.</param>
+        /// <returns>Redirect на перегляд згенерованого звіту.</returns>
         [HttpPost]
         public async Task<IActionResult> GenerateReport(DateTime startDate, DateTime endDate)
         {
@@ -102,6 +119,11 @@ namespace BusinessFinancialAccounting.Controllers
             return RedirectToAction("ViewReport", new { id = report.Id });
         }
 
+        /// <summary>
+        /// Переглядає конкретний звіт користувача.
+        /// </summary>
+        /// <param name="id">ID звіту.</param>
+        /// <returns>Представлення звіту з деталями отриманих чеків.</returns>
         public async Task<IActionResult> ViewReport(int id)
         {
             var report = await _context.Reports
@@ -122,6 +144,11 @@ namespace BusinessFinancialAccounting.Controllers
             return View(report);
         }
 
+        /// <summary>
+        /// Повертає часткове представлення з деталями чеку.
+        /// </summary>
+        /// <param name="receiptId">ID чеку.</param>
+        /// <returns>Часткове представлення _ReceiptDetails або NotFound.</returns>
         public async Task<IActionResult> GetReceiptDetails(int receiptId)
         {
             var receipt = await _context.Reciepts
@@ -133,6 +160,10 @@ namespace BusinessFinancialAccounting.Controllers
             return PartialView("_ReceiptDetails", receipt);
         }
 
+        /// <summary>
+        /// Показує список усіх звітів користувача.
+        /// </summary>
+        /// <returns>Представлення зі списком звітів.</returns>
         public async Task<IActionResult> ListReports()
         {
             var userId = TryGetUserId();
@@ -146,6 +177,11 @@ namespace BusinessFinancialAccounting.Controllers
             return View(reports);
         }
 
+        /// <summary>
+        /// Перегенеровує існуючий звіт, оновлюючи дані за тим же періодом.
+        /// </summary>
+        /// <param name="id">ID звіту для перегенерації.</param>
+        /// <returns>Redirect на головну сторінку звітів після оновлення.</returns>
         [HttpPost]
         public async Task<IActionResult> RegenerateReport(int id)
         {
@@ -186,6 +222,11 @@ namespace BusinessFinancialAccounting.Controllers
             return RedirectToAction("Index");
         }
 
+        /// <summary>
+        /// Видаляє звіт користувача.
+        /// </summary>
+        /// <param name="id">ID звіту для видалення.</param>
+        /// <returns>Redirect на головну сторінку звітів після видалення.</returns>
         [HttpPost]
         public async Task<IActionResult> DeleteReport(int id)
         {

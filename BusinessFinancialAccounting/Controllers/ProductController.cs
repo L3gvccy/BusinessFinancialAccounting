@@ -4,6 +4,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BusinessFinancialAccounting.Controllers
 {
+    /// <summary>
+    /// Контролер для керування товарами користувача.
+    /// </summary>
     public class ProductController : Controller
     {
         private readonly AppDbContext _context;
@@ -11,6 +14,10 @@ namespace BusinessFinancialAccounting.Controllers
         {
             _context = context;
         }
+        /// <summary>
+        /// Показує список товарів користувача.
+        /// </summary>
+        /// <returns>Представлення списку товарів користувача.</returns>
         public async Task<IActionResult> Products()
         {
             var userIdStr = HttpContext.Session.GetString("UserId");
@@ -22,6 +29,11 @@ namespace BusinessFinancialAccounting.Controllers
             return View(products);
         }
 
+        /// <summary>
+        /// Повертає сторінку редагування товару за його ідентифікатором.
+        /// </summary>
+        /// <param name="id">Ідентифікатор товару.</param>
+        /// <returns>Представлення для редагування або NotFound, якщо товар не існує.</returns>
         [HttpGet]
         public async Task<IActionResult> EditProduct(int id)
         {
@@ -32,6 +44,13 @@ namespace BusinessFinancialAccounting.Controllers
             return View(product);
         }
 
+        /// <summary>
+        /// Обробляє редагування товару та оновлює дані у базі.
+        /// </summary>
+        /// <param name="product">Модель з оновленими даними.</param>
+        /// <returns>
+        /// Повертає View з помилкою, якщо дані некоректні, або Redirect на список товарів після успішного оновлення.
+        /// </returns>
         [HttpPost]
         public async Task<IActionResult> EditProduct(Product product)
         {
@@ -49,11 +68,23 @@ namespace BusinessFinancialAccounting.Controllers
             return RedirectToAction("Products");
         }
 
+        /// <summary>
+        /// Повертає сторінку для додавання нового товару.
+        /// </summary>
+        /// <returns>Представлення для додавання товару.</returns>
         [HttpGet]
         public IActionResult AddProduct()
         {
             return View();
         }
+
+        /// <summary>
+        /// Обробляє додавання нового товару для користувача.
+        /// </summary>
+        /// <param name="product">Модель з даними нового товару.</param>
+        /// <returns>
+        /// Повертає View з помилкою, якщо дані некоректні, або Redirect на список товарів після успішного додавання/оновлення.
+        /// </returns>
         [HttpPost]
         public async Task<IActionResult> AddProduct(Product product)
         {
@@ -92,6 +123,14 @@ namespace BusinessFinancialAccounting.Controllers
             return RedirectToAction("Products");
         }
 
+        /// <summary>
+        /// Шукає товар за його кодом і повертає JSON-обʼєкт з інформацією.
+        /// </summary>
+        /// <param name="code">Код товару для пошуку.</param>
+        /// <returns>
+        /// JSON-обʼєкт з полями Code, Name, Units, Price,
+        /// або null, якщо товар не знайдено.
+        /// </returns>
         [HttpGet]
         public async Task<IActionResult> FindByCode(int code)
         {

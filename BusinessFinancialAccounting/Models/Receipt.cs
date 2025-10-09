@@ -2,6 +2,9 @@
 
 namespace BusinessFinancialAccounting.Models
 {
+    /// <summary>
+    /// Клас чеку
+    /// </summary>
     public class Receipt
     {
         [Key]

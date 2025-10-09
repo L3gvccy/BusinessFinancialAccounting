@@ -2,6 +2,9 @@
 
 namespace BusinessFinancialAccounting.Models
 {
+    /// <summary>
+    /// Користувач
+    /// </summary>
     public class User
     {
         [Key]

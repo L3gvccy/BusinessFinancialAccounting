@@ -6,6 +6,9 @@ using System;
 
 namespace BusinessFinancialAccounting.Controllers
 {
+    /// <summary>
+    /// Контролер для управління грошовими операціями користувача.
+    /// </summary>
     public class CashController : Controller
     {
         private readonly AppDbContext _context;
@@ -15,6 +18,10 @@ namespace BusinessFinancialAccounting.Controllers
             _context = context;
         }
 
+        /// <summary>
+        /// Показує баланс користувача за рахунками готівки та картки.
+        /// </summary>
+        /// <returns>Представлення з інформацією про баланс користувача.</returns>
         public IActionResult CashBalance()
         {
             var userIdStr = HttpContext.Session.GetString("UserId");
@@ -26,7 +33,12 @@ namespace BusinessFinancialAccounting.Controllers
             return View(cashRegister);
         }
 
-        // Відображення модального вікна
+        /// <summary>
+        /// Повертає часткове представлення для введення фінансової операції.
+        /// </summary>
+        /// <param name="accountType">Тип рахунку: "cash" або "card".</param>
+        /// <param name="actionType">Тип дії: "withdraw" або "deposit".</param>
+        /// <returns>Часткове представлення з формою введення суми операції.</returns>
         [HttpGet]
         public IActionResult TransactionForm(string accountType, string actionType)
         {
@@ -39,7 +51,13 @@ namespace BusinessFinancialAccounting.Controllers
             return PartialView("_TransactionForm", model);
         }
 
-        // Обробка введеної суми
+        /// <summary>
+        /// Обробляє фінансову операцію користувача: внесення або видачу коштів.
+        /// </summary>
+        /// <param name="model">Модель з даними операції.</param>
+        /// <returns>
+        /// Часткове представлення з повідомленням про помилку, якщо сума перевищує баланс, або JSON-підтвердження успіху операції.
+        /// </returns>
         [HttpPost]
         public IActionResult TransactionForm(TransactionViewModel model)
         {

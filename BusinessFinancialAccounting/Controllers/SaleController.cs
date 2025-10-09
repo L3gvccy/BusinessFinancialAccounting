@@ -5,6 +5,9 @@ using System.Text.Json;
 
 namespace BusinessFinancialAccounting.Controllers
 {
+    /// <summary>
+    /// Контролер для управління продажами та роботою з кошиком.
+    /// </summary>
     public class SaleController : Controller
     {
         private readonly AppDbContext _context;
@@ -15,6 +18,10 @@ namespace BusinessFinancialAccounting.Controllers
             _context = context;
         }
 
+        /// <summary>
+        /// Отримує словник товарів та їх кількості з кошика сесії.
+        /// </summary>
+        /// <returns>Словник productId -> quantity.</returns>
         private Dictionary<int, decimal> GetCart()
         {
             var json = HttpContext.Session.GetString(CART_KEY);
@@ -22,15 +29,29 @@ namespace BusinessFinancialAccounting.Controllers
             return JsonSerializer.Deserialize<Dictionary<int, decimal>>(json)
                    ?? new Dictionary<int, decimal>();
         }
+
+        /// <summary>
+        /// Зберігає словник товарів та їх кількості з кошика сесії.
+        /// </summary>
+        /// <returns>Словник productId -> quantity.</returns>
         private void SaveCart(Dictionary<int, decimal> cart)
             => HttpContext.Session.SetString(CART_KEY, JsonSerializer.Serialize(cart));
 
+        /// <summary>
+        /// Спроба отримати ID користувача з сесії.
+        /// </summary>
+        /// <returns>ID користувача, або null, якщо користувач не авторизований.</returns>
         private int? TryGetUserId()
         {
             var s = HttpContext.Session.GetString("UserId");
             return string.IsNullOrEmpty(s) ? (int?)null : int.Parse(s);
         }
 
+        /// <summary>
+        /// Формує дані кошика: список товарів, кількість і загальну суму.
+        /// </summary>
+        /// <param name="userId">ID користувача.</param>
+        /// <returns>Список з товарами, кількістю та загальною сумою</returns>
         private async Task<(List<Product> products, Dictionary<int, decimal> qty, decimal total)>
             BuildCartDataAsync(int userId)
         {
@@ -51,6 +72,10 @@ namespace BusinessFinancialAccounting.Controllers
             return (products, qty, total);
         }
 
+        /// <summary>
+        /// Показує сторінку продажу та відображає кошик.
+        /// </summary>
+        /// <returns>Представлення з товарами у кошику та загальною сумою.</returns>
         public async Task<IActionResult> Sale()
         {
             var userId = TryGetUserId();
@@ -62,7 +87,11 @@ namespace BusinessFinancialAccounting.Controllers
             return View(products);
         }
 
-        [HttpPost]
+        /// <summary>
+        /// Додає товар у кошик за його кодом.
+        /// </summary>
+        /// <param name="code">Код товару.</param>
+        /// <returns>Redirect на сторінку продажу.</returns>
         [HttpPost]
         public async Task<IActionResult> AddByCode([FromForm] int code)
         {
@@ -96,6 +125,12 @@ namespace BusinessFinancialAccounting.Controllers
             return RedirectToAction("Sale");
         }
 
+        /// <summary>
+        /// Змінює кількість товару у кошику.
+        /// </summary>
+        /// <param name="productId">ID товару.</param>
+        /// <param name="qty">Нова кількість у вигляді рядка.</param>
+        /// <returns>Redirect на сторінку продажу.</returns>
         [HttpPost]
         public async Task<IActionResult> ChangeQty([FromForm] int productId, [FromForm] string qty)
         {
@@ -153,6 +188,11 @@ namespace BusinessFinancialAccounting.Controllers
             return RedirectToAction("Sale");
         }
 
+        /// <summary>
+        /// Видаляє товар з кошика.
+        /// </summary>
+        /// <param name="productId">ID товару для видалення.</param>
+        /// <returns>Redirect на сторінку продажу.</returns>
         [HttpPost]
         public IActionResult Remove([FromForm] int productId)
         {
@@ -166,6 +206,10 @@ namespace BusinessFinancialAccounting.Controllers
             return RedirectToAction("Sale");
         }
 
+        /// <summary>
+        /// Очищає кошик.
+        /// </summary>
+        /// <returns>Redirect на сторінку продажу.</returns>
         [HttpPost]
         public IActionResult Clear()
         {
@@ -176,6 +220,11 @@ namespace BusinessFinancialAccounting.Controllers
             return RedirectToAction("Sale");
         }
 
+        /// <summary>
+        /// Виконує оплату товарів у кошику.
+        /// </summary>
+        /// <param name="method">Метод оплати: "cash" або "card".</param>
+        /// <returns>Redirect на сторінку продажу.</returns>
         [HttpPost]
         public async Task<IActionResult> Pay([FromQuery] string method) // cash|card
         {

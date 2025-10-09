@@ -3,6 +3,9 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace BusinessFinancialAccounting.Models
 {
+    /// <summary>
+    /// Клас продукту в чеку
+    /// </summary>
     public class ReceiptProduct
     {
         [Key]
