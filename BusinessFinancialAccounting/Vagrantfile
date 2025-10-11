@@ -40,19 +40,25 @@ Vagrant.configure("2") do |config|
       -p 1433:1433 --name sqlserver -d mcr.microsoft.com/mssql/server:2019-latest
 
     echo "=== Waiting for SQL Server to start ==="
-    sleep 20
+    until nc -zv localhost 1433 2>/dev/null
+    do
+      echo "SQL Server is starting..."
+      sleep 5
+    done
+    echo "SQL Server is ready!"
 
     echo "=== Building and running MVC app ==="
     cd /vagrant
 
     dotnet new tool-manifest || true
-    dotnet tool install dotnet-ef --version 8.* || true
+    dotnet tool install dotnet-ef --version 9.* || true
 
     # Видаляємо DocFX, якщо ще є
     dotnet remove package docfx.console || echo "DocFX already removed"
 
     dotnet restore
     dotnet build -c Release -p:BuildDocfx=false
+    sleep 5
     dotnet tool run dotnet-ef database update
 
     nohup dotnet run -c Release --urls "http://0.0.0.0:5000" > /home/vagrant/app.log 2>&1 &
