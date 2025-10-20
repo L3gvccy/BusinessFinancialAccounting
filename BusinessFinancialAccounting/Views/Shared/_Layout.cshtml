@@ -7,6 +7,8 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/BusinessFinancialAccounting.styles.css" asp-append-version="true" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+
 </head>
 <style>
     html, body {
@@ -61,6 +63,9 @@
                                 <span class="navbar-text text-dark me-2">
                                     Привіт, @Context.Session.GetString("Username")
                                 </span>
+                            </li>
+                            <li class="nav-item">
+                                <a class="btn btn-primary btn-sm me-2 px-3" asp-controller="Account" asp-action="Profile">Профіль</a>
                             </li>
                             <li class="nav-item">
                                 <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">

@@ -26,4 +26,10 @@
             <a asp-controller="Account" asp-action="Register">Зареєструватись</a>
         </div>
     </form>
+
+    <h4>Або увійдіть через:</h4>
+
+    <a class="btn btn-danger w-100" asp-controller="Account" asp-action="ExternalLogin" asp-route-provider="Google">
+        <i class="fab fa-google"></i> Google
+    </a>
 </div>

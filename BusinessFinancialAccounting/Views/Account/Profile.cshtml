@@ -1,0 +1,54 @@
+﻿@model BusinessFinancialAccounting.Models.ProfileDataViewModel
+@{
+    ViewData["Title"] = "Профіль";
+}
+
+<div class="d-block mx-auto my-3 p-3" style="max-width: 500px">
+    <h2 class="text-center mb-3">Профіль користувача</h2>
+
+    <h4>Персональні дані</h4>
+    <form asp-action="UpdateProfile" method="post">
+        <div class="mb-3">
+            <label class="form-label">ПІБ</label>
+            <input asp-for="FullName" class="form-control" />
+            <span asp-validation-for="FullName" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Телефон</label>
+            <input asp-for="Phone" class="form-control" />
+            <span asp-validation-for="Phone" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Email</label>
+            <input asp-for="Email" class="form-control" />
+            <span asp-validation-for="Email" class="text-danger"></span>
+        </div>
+
+        <hr />
+
+        <a asp-action="ChangePassword" class="btn btn-warning">Змінити пароль</a>
+
+        <hr />
+
+        <h4>Google</h4>
+        @if (Model.IsGoogleLinked)
+        {
+            <p>Google акаунт прив’язаний.</p>
+            <a asp-action="UnlinkGoogle" class="btn btn-danger">Відв’язати Google</a>
+        }
+        else
+        {
+            <a asp-action="LinkGoogle" class="btn btn-primary">Прив’язати Google</a>
+        }
+
+        <hr />
+        <button type="submit" class="btn btn-success">Зберегти дані</button>
+    </form>
+
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
