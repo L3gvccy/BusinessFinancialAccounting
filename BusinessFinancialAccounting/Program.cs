@@ -17,8 +17,35 @@ builder.Services.AddSession(options =>
 });
 
 
+var provider = builder.Configuration.GetValue<string>("DatabaseProvider")?.ToLowerInvariant() ?? "sqlserver";
+
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+{
+    switch (provider)
+    {
+        case "sqlserver":
+            var sqlConn = builder.Configuration.GetConnectionString("SqlServer");
+            options.UseSqlServer(sqlConn);
+            break;
+
+        case "postgres":
+            var pg = builder.Configuration.GetConnectionString("Postgres");
+            options.UseNpgsql(pg, b => b.MigrationsAssembly(typeof(AppDbContext).Assembly.FullName));
+            break;
+
+        case "sqlite":
+            var sqlite = builder.Configuration.GetConnectionString("Sqlite");
+            options.UseSqlite(sqlite);
+            break;
+
+        case "inmemory":
+            options.UseInMemoryDatabase("BusinessFinancialAccounting_InMemory");
+            break;
+
+        default:
+            throw new InvalidOperationException($"Unknown DatabaseProvider: {provider}");
+    }
+});
 
 
 builder.Services.AddAuthentication(options =>
@@ -60,5 +87,23 @@ app.UseSession();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
+
+
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+    if (provider == "inmemory")
+    {
+        // Ensure created (InMemory)
+        db.Database.EnsureDeleted();
+        db.Database.EnsureCreated();
+    }
+    else if (provider == "sqlite" || provider == "sqlserver" || provider == "postgres")
+    {
+        // Apply migrations (make sure you created migrations)
+        // db.Database.Migrate();
+    }
+}
 
 app.Run();

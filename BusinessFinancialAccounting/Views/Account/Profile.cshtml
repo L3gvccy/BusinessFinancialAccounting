@@ -26,9 +26,12 @@
             <span asp-validation-for="Email" class="text-danger"></span>
         </div>
 
+        <button type="submit" class="btn btn-success w-100">Зберегти дані</button>
+
         <hr />
 
-        <a asp-action="ChangePassword" class="btn btn-warning">Змінити пароль</a>
+        <h4>Зміна паролю</h4>
+        <a asp-action="ChangePassword" class="btn btn-warning w-100">Змінити пароль</a>
 
         <hr />
 
@@ -36,15 +39,13 @@
         @if (Model.IsGoogleLinked)
         {
             <p>Google акаунт прив’язаний.</p>
-            <a asp-action="UnlinkGoogle" class="btn btn-danger">Відв’язати Google</a>
+            <a asp-action="UnlinkGoogle" class="btn btn-danger w-100">Відв’язати Google</a>
         }
         else
         {
-            <a asp-action="LinkGoogle" class="btn btn-primary">Прив’язати Google</a>
+            <a asp-action="LinkGoogle" class="btn btn-primary w-100">Прив’язати Google</a>
         }
 
-        <hr />
-        <button type="submit" class="btn btn-success">Зберегти дані</button>
     </form>
 
 </div>
