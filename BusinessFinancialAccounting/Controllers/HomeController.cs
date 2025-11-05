@@ -7,6 +7,8 @@ namespace BusinessFinancialAccounting.Controllers
     /// <summary>
     /// Контролер для головної сторінки застосунку та стандартних системних сторінок.
     /// </summary>
+    [ApiController]
+    [Route("api/[controller]")]
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
@@ -16,32 +18,22 @@ namespace BusinessFinancialAccounting.Controllers
             _logger = logger;
         }
 
-        /// <summary>
-        /// Показує головну сторінку застосунку.
-        /// </summary>
-        /// <returns>Представлення головної сторінки.</returns>
-        public IActionResult Index()
+        [HttpGet("status")]
+        public IActionResult Status()
         {
-            return View();
+            return Ok(new { message = "App works!" });
         }
 
-        /// <summary>
-        /// Показує сторінку з політикою конфіденційності.
-        /// </summary>
-        /// <returns>Представлення сторінки Privacy.</returns>
-        public IActionResult Privacy()
+        [HttpGet("me")]
+        public IActionResult GetUser()
         {
-            return View();
-        }
+            var username = HttpContext.Session.GetString("Username");
+            var userId = HttpContext.Session.GetString("UserId");
 
-        /// <summary>
-        /// Показує сторінку помилки.
-        /// </summary>
-        /// <returns>Представлення сторінки помилки.</returns>
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
-        {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            if (username == null)
+                return Unauthorized(new { isAuthenticated = false });
+
+            return Ok(new { isAuthenticated = true, username, userId });
         }
     }
 }

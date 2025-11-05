@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
 
 
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllers();
 builder.Services.AddDistributedMemoryCache();
 
 builder.Services.AddSession(options =>
@@ -16,6 +16,16 @@ builder.Services.AddSession(options =>
     options.Cookie.IsEssential = true;
 });
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("ReactPolicy", policy =>
+    {
+        policy.WithOrigins("http://localhost:5173")
+              .AllowCredentials()
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
 
 var provider = builder.Configuration.GetValue<string>("DatabaseProvider")?.ToLowerInvariant() ?? "sqlserver";
 
@@ -24,18 +34,18 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     switch (provider)
     {
         case "sqlserver":
-            var sqlConn = builder.Configuration.GetConnectionString("SqlServer");
-            options.UseSqlServer(sqlConn);
+            options.UseSqlServer(builder.Configuration.GetConnectionString("SqlServer"));
             break;
 
         case "postgres":
-            var pg = builder.Configuration.GetConnectionString("Postgres");
-            options.UseNpgsql(pg, b => b.MigrationsAssembly(typeof(AppDbContext).Assembly.FullName));
+            options.UseNpgsql(
+                builder.Configuration.GetConnectionString("Postgres"),
+                b => b.MigrationsAssembly(typeof(AppDbContext).Assembly.FullName)
+            );
             break;
 
         case "sqlite":
-            var sqlite = builder.Configuration.GetConnectionString("Sqlite");
-            options.UseSqlite(sqlite);
+            options.UseSqlite(builder.Configuration.GetConnectionString("Sqlite"));
             break;
 
         case "inmemory":
@@ -47,7 +57,6 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     }
 });
 
-
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
@@ -55,8 +64,11 @@ builder.Services.AddAuthentication(options =>
 })
 .AddCookie(options =>
 {
-    options.LoginPath = "/Account/Login";
-    options.LogoutPath = "/Account/Logout";
+    options.LoginPath = "/api/account/login";
+    options.LogoutPath = "/api/account/logout";
+    options.Cookie.HttpOnly = true;
+    options.Cookie.SameSite = SameSiteMode.None;
+    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
 })
 .AddGoogle(options =>
 {
@@ -65,28 +77,24 @@ builder.Services.AddAuthentication(options =>
     options.CallbackPath = "/signin-google";
 });
 
-
 var app = builder.Build();
 
-if (!app.Environment.IsDevelopment())
-{
-    app.UseExceptionHandler("/Home/Error");
-    app.UseHsts();
-}
 
 app.UseHttpsRedirection();
+
 app.UseStaticFiles();
 
 app.UseRouting();
+
+app.UseCors("ReactPolicy");
 
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.UseSession();
 
-app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+app.MapControllers();
+
 
 
 using (var scope = app.Services.CreateScope())
@@ -95,13 +103,12 @@ using (var scope = app.Services.CreateScope())
 
     if (provider == "inmemory")
     {
-        // Ensure created (InMemory)
         db.Database.EnsureDeleted();
         db.Database.EnsureCreated();
     }
-    else if (provider == "sqlite" || provider == "sqlserver" || provider == "postgres")
+    else
     {
-        // Apply migrations (make sure you created migrations)
+        // optional auto-migrate
         // db.Database.Migrate();
     }
 }

@@ -12,6 +12,8 @@ namespace BusinessFinancialAccounting.Controllers
     /// <summary>
     /// Контролер для керування обліковими записами користувачів, включаючи реєстрацію, вхід та вихід.
     /// </summary>
+    [ApiController]
+    [Route("api/[controller]")]
     public class AccountController : Controller
     {
         private AppDbContext _context;
@@ -22,15 +24,6 @@ namespace BusinessFinancialAccounting.Controllers
         }
 
         /// <summary>
-        /// Відображає сторінку реєстрації користувача.
-        /// </summary>
-        /// <returns>Сторінка реєстрації</returns>
-        public IActionResult Register()
-        {
-            return View();
-        }
-
-        /// <summary>
         /// Обробляє реєстрацію нового користувача.
         /// </summary>
         /// <param name="model">Клас користувача</param>
@@ -38,7 +31,7 @@ namespace BusinessFinancialAccounting.Controllers
         /// <param name="cashBalance">Стратовий капітал готівки</param>
         /// <param name="cardBalance">Стартовий капітал карткою</param>
         /// <returns>Перехід на сторінку логіну</returns>
-        [HttpPost]
+        [HttpPost("register")]
         public IActionResult Register(User model, string confirmPassword, int cashBalance, int cardBalance)
         {
             if (!ModelState.IsValid)
