@@ -1,11 +1,25 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 
+import { showAlert } from "../utils/show-alert";
+
 export default function Header() {
   const [user, setUser] = useState(null);
 
+  function onClickLogout() {
+    fetch("http://localhost:5081/api/account/logout", {
+      method: "POST",
+      credentials: "include",
+    }).then(() => {
+      setUser(null);
+      showAlert("Ви вийшли з системи.", "info");
+    });
+  }
+
   useEffect(() => {
-    fetch("/api/home/me")
+    fetch("http://localhost:5081/api/home/me", {
+      credentials: "include",
+    })
       .then((res) => (res.ok ? res.json() : { isAuthenticated: false }))
       .then((data) => (data.isAuthenticated ? setUser(data) : setUser(null)));
   }, []);
@@ -53,19 +67,21 @@ export default function Header() {
 
           <ul className="navbar-nav">
             {user ? (
-              <>
+              <div className="d-flex align-items-center">
                 <span className="navbar-text me-2">
                   Привіт, {user.username}
                 </span>
                 <Link className="btn btn-primary btn-sm me-2" to="/profile">
                   Профіль
                 </Link>
-                <form action="/account/logout" method="post">
-                  <button className="btn btn-outline-danger btn-sm">
-                    Вийти
-                  </button>
-                </form>
-              </>
+                <Link
+                  className="btn btn-outline-danger btn-sm me-2"
+                  to="/"
+                  onClick={onClickLogout}
+                >
+                  Вийти
+                </Link>
+              </div>
             ) : (
               <>
                 <Link className="btn btn-primary btn-sm me-2" to="/login">

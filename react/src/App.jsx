@@ -1,19 +1,21 @@
 import React from "react";
 import { useState } from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import Layout from "./components/layout";
 import Home from "./pages/home.jsx";
 import Register from "./pages/register.jsx";
-
-import "./App.css";
-import Layout from "./components/layout";
+import Login from "./pages/login.jsx";
+import Alert from "./components/alert.jsx";
 
 function App() {
   return (
     <Router>
+      <Alert />
       <Layout>
         <Routes>
           <Route path="/" element={<Home />}></Route>
           <Route path="/register" element={<Register />}></Route>
+          <Route path="/login" element={<Login />}></Route>
         </Routes>
       </Layout>
     </Router>

@@ -1,4 +1,5 @@
 ﻿using BusinessFinancialAccounting.Models;
+using BusinessFinancialAccounting.Models.DTO;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
@@ -26,87 +27,77 @@ namespace BusinessFinancialAccounting.Controllers
         /// <summary>
         /// Обробляє реєстрацію нового користувача.
         /// </summary>
-        /// <param name="model">Клас користувача</param>
-        /// <param name="confirmPassword">Підтвердження паролю</param>
-        /// <param name="cashBalance">Стратовий капітал готівки</param>
-        /// <param name="cardBalance">Стартовий капітал карткою</param>
+        /// <param name="model">DTO реєстрації</param>
         /// <returns>Перехід на сторінку логіну</returns>
         [HttpPost("register")]
-        public IActionResult Register(User model, string confirmPassword, int cashBalance, int cardBalance)
+        public IActionResult Register(RegisterDTO model)
         {
-            if (!ModelState.IsValid)
-            {
-                return View(model);
-            }
-
-            if (model.Password != confirmPassword)
-            {
-                ModelState.AddModelError("Password", "Паролі не співпадають!");
-                return View(model);
-            }
 
             if (_context.Users.Any(u => u.Username == model.Username))
             {
-                ModelState.AddModelError("Username", "Такий логін вже існує!");
-                return View(model);
+                return BadRequest(new { usernameErr = "Такий логін вже існує!" });
             }
 
-            _context.Users.Add(model);
+            var user = new User
+            {
+                Username = model.Username,
+                FullName = model.FullName,
+                Password = model.Password,
+                Phone = model.Phone,
+                Email = model.Email
+            };
+
+            _context.Users.Add(user);
             _context.SaveChanges();
 
             var cashRegister = new CashRegister
             {
-                User = model,
-                CashBalance = cashBalance,
-                CardBalance = cardBalance
+                User = user,
+                CashBalance = model.CashBalance,
+                CardBalance = model.CardBalance
             };
 
             _context.CashRegisters.Add(cashRegister);
             _context.SaveChanges();
 
-            return RedirectToAction("Login");
-        }
-
-        /// <summary>
-        /// Відображає сторінку входу користувача.
-        /// </summary>
-        /// <returns>Сторінка входу користувача</returns>
-        public IActionResult Login()
-        {
-            return View();
+            return Ok(new { message = "Реєстрація успішна" });
         }
 
         /// <summary>
         /// Обробляє вхід користувача.
         /// </summary>
-        /// <param name="username">Логін</param>
-        /// <param name="password">Пароль</param>
+        /// <param name="model">DTO логіну</param>
         /// <returns>Перехід на головну сторінку в разі успішної автентифікації</returns>
-        [HttpPost]
-        public IActionResult Login(string username, string password)
+        [HttpPost("login")]
+        public IActionResult Login([FromBody] LoginDTO model)
         {
-            var user = _context.Users.FirstOrDefault(u => u.Username == username && u.Password == password);
+            Console.WriteLine($"Username: '{model.Username}', Password: '{model.Password}'");
 
-            if (user != null)
-            {
-                HttpContext.Session.SetString("Username", user.Username);
-                HttpContext.Session.SetString("UserId", user.Id.ToString());
+            if (string.IsNullOrWhiteSpace(model.Username) || string.IsNullOrWhiteSpace(model.Password))
+                return BadRequest(new { error = "Порожнє ім’я або пароль" });
 
-                return RedirectToAction("Index", "Home");
-            }
+            var user = _context.Users
+                .FirstOrDefault(u => u.Username == model.Username && u.Password == model.Password);
 
-            ModelState.AddModelError("Username", "Невірний логін або пароль");
-            return View();
+            if (user == null)
+                return BadRequest(new { error = "Невірний логін або пароль" });
+
+            HttpContext.Session.SetString("Username", user.Username);
+            HttpContext.Session.SetString("UserId", user.Id.ToString());
+
+            return Ok(new { message = "Ви успішно увійшли до акаунту" });
         }
+
 
         /// <summary>
         /// Обробляє вихід користувача з системи.
         /// </summary>
         /// <returns>Перехід на головну сторінку</returns>
+        [HttpPost("logout")]
         public IActionResult Logout()
         {
             HttpContext.Session.Clear();
-            return RedirectToAction("Index", "Home");
+            return Ok(new { alertMsg = "Ви успішно вийши з акаунуту!", alertType = "success" });
         }
 
 
