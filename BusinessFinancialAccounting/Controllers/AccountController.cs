@@ -178,13 +178,21 @@ namespace BusinessFinancialAccounting.Controllers
             return LocalRedirect(returnUrl);
         }
 
-        public async Task<IActionResult> Profile()
+        [HttpGet("profile")]
+        public async Task<IActionResult> GetProfile()
         {
-            int userId = int.Parse(HttpContext.Session.GetString("UserId")!);
-            var user = await _context.Users.FindAsync(userId);
-            if (user == null) return RedirectToAction("Login");
+            var userIdStr = HttpContext.Session.GetString("UserId");
+            if (string.IsNullOrEmpty(userIdStr))
+                return Unauthorized(new { error = "Користувач не авторизований" });
 
-            var model = new ProfileDataViewModel
+            if (!int.TryParse(userIdStr, out var userId))
+                return Unauthorized(new { error = "Некоректна сесія" });
+
+            var user = await _context.Users.FindAsync(userId);
+            if (user == null)
+                return NotFound(new { error = "Користувача не знайдено" });
+
+            var dto = new ProfileDTO
             {
                 FullName = user.FullName,
                 Phone = user.Phone,
@@ -192,78 +200,88 @@ namespace BusinessFinancialAccounting.Controllers
                 IsGoogleLinked = !string.IsNullOrEmpty(user.OAuthId)
             };
 
-            return View(model);
+            return Ok(dto);
         }
 
-        [HttpPost]
-        public async Task<IActionResult> UpdateProfile(ProfileDataViewModel model)
+        [HttpPut("profile")]
+        public async Task<IActionResult> UpdateProfile([FromBody] UpdateProfileDTO model)
         {
-            if (!ModelState.IsValid) return View("Profile", model);
+            if (!ModelState.IsValid)
+                return BadRequest(new { error = "Некоректні дані профілю", details = ModelState });
 
-            int userId = int.Parse(HttpContext.Session.GetString("UserId")!);
+            var userIdStr = HttpContext.Session.GetString("UserId");
+            if (string.IsNullOrEmpty(userIdStr))
+                return Unauthorized(new { error = "Користувач не авторизований" });
+
+            if (!int.TryParse(userIdStr, out var userId))
+                return Unauthorized(new { error = "Некоректна сесія" });
+
             var user = await _context.Users.FindAsync(userId);
-            if (user == null) return RedirectToAction("Login");
+            if (user == null)
+                return NotFound(new { error = "Користувача не знайдено" });
 
-            user.FullName = model.FullName;
-            user.Phone = model.Phone;
-            user.Email = model.Email;
+            var emailExists = await _context.Users
+                .AnyAsync(u => u.Email == model.Email && u.Id != userId);
+            if (emailExists)
+                return BadRequest(new { error = "Користувач з таким email вже існує" });
+
+            user.FullName = model.FullName.Trim();
+            user.Phone = model.Phone.Trim();
+            user.Email = model.Email.Trim();
 
             _context.Users.Update(user);
             await _context.SaveChangesAsync();
 
-            TempData["AlertMsg"] = "Дані профілю успішно оновлено!";
-            TempData["AlertType"] = "success";
-
-            return RedirectToAction("Profile");
+            return Ok(new { message = "Дані профілю успішно оновлено" });
         }
 
-        public IActionResult ChangePassword()
+        [HttpPost("change-password")]
+        public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDTO model)
         {
-            return View(new ChangePasswordViewModel());
-        }
+            if (!ModelState.IsValid)
+                return BadRequest(new { error = "Некоректні дані", details = ModelState });
 
-        [HttpPost]
-        public async Task<IActionResult> ChangePassword(ChangePasswordViewModel model)
-        {
-            if (!ModelState.IsValid) return View(model);
+            var userIdStr = HttpContext.Session.GetString("UserId");
+            if (string.IsNullOrEmpty(userIdStr))
+                return Unauthorized(new { error = "Користувач не авторизований" });
 
-            int userId = int.Parse(HttpContext.Session.GetString("UserId")!);
+            if (!int.TryParse(userIdStr, out var userId))
+                return Unauthorized(new { error = "Некоректна сесія" });
+
             var user = await _context.Users.FindAsync(userId);
-            if (user == null) return RedirectToAction("Login");
+            if (user == null)
+                return NotFound(new { error = "Користувача не знайдено" });
 
             user.Password = model.NewPassword;
-
             _context.Users.Update(user);
             await _context.SaveChangesAsync();
 
-            TempData["AlertMsg"] = "Пароль успішно змінено!";
-            TempData["AlertType"] = "success";
-
-            return RedirectToAction("Profile");
+            return Ok(new { message = "Пароль успішно змінено" });
         }
 
-
-        [HttpGet]
-        public async Task<IActionResult> UnlinkGoogle()
+        [HttpPost("unlink-google")]
+        public async Task<IActionResult> UnlinkGoogleApi()
         {
-            int userId = int.Parse(HttpContext.Session.GetString("UserId")!);
+            var userIdStr = HttpContext.Session.GetString("UserId");
+            if (string.IsNullOrEmpty(userIdStr))
+                return Unauthorized(new { error = "Користувач не авторизований" });
+
+            if (!int.TryParse(userIdStr, out var userId))
+                return Unauthorized(new { error = "Некоректна сесія" });
+
             var user = await _context.Users.FindAsync(userId);
+            if (user == null)
+                return NotFound(new { error = "Користувача не знайдено" });
 
-            if (user != null)
-            {
-                user.OAuthId = null;
-                user.OAuthProvider = null;
-                _context.Users.Update(user);
-                await _context.SaveChangesAsync();
-            }
+            user.OAuthId = null;
+            user.OAuthProvider = null;
+            _context.Users.Update(user);
+            await _context.SaveChangesAsync();
 
-            TempData["AlertMsg"] = "Google авторизація успішно відв'язана!";
-            TempData["AlertType"] = "success";
-
-            return RedirectToAction("Profile");
+            return Ok(new { message = "Google авторизацію відв’язано" });
         }
 
-        [HttpGet]
+        [HttpGet("link-google")]
         public IActionResult LinkGoogle()
         {
             var redirectUrl = Url.Action(nameof(LinkGoogleCallback), "Account");
@@ -271,16 +289,19 @@ namespace BusinessFinancialAccounting.Controllers
             return Challenge(properties, "Google");
         }
 
-        [HttpGet]
+        [HttpGet("link-google-callback")]
         public async Task<IActionResult> LinkGoogleCallback()
         {
             var result = await HttpContext.AuthenticateAsync("Google");
-            if (!result.Succeeded) return RedirectToAction("Profile");
+            if (!result.Succeeded) return Redirect("http://localhost:5173/profile");
 
             var email = result.Principal?.FindFirstValue(ClaimTypes.Email);
             var oauthId = result.Principal?.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            int userId = int.Parse(HttpContext.Session.GetString("UserId")!);
+            var userIdStr = HttpContext.Session.GetString("UserId");
+            if (string.IsNullOrEmpty(userIdStr) || !int.TryParse(userIdStr, out var userId))
+                return Redirect("http://localhost:5173/profile");
+
             var user = await _context.Users.FindAsync(userId);
             if (user != null && email == user.Email)
             {
@@ -290,10 +311,8 @@ namespace BusinessFinancialAccounting.Controllers
                 await _context.SaveChangesAsync();
             }
 
-            TempData["AlertMsg"] = "Google авторизація успішно прив'язана!";
-            TempData["AlertType"] = "success";
-
-            return RedirectToAction("Profile");
+            Redirect("http://localhost:5173/profile");
+            return Ok(new { message = "Google авторизацію прив’язано" });
         }
     }
 }
