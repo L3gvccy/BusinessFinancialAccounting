@@ -54,20 +54,24 @@ export default function Register() {
       return;
     }
 
-    try {
-      await axios.post(
-        "https://localhost:5081/api/account/register",
-        formData,
-        {
-          withCredentials: true,
+    axios
+      .post("http://localhost:5081/api/account/register", formData, {
+        headers: { "Content-Type": "application/json" },
+        withCredentials: true,
+      })
+      .then((response) => {
+        window.location.href = "/login";
+        showAlert("Реєстрація успішна! Увійдіть в ваш акаунт", "success");
+      })
+      .catch((error) => {
+        if (error.response && error.response.status === 400) {
+          setUsernameError(
+            error.response.data?.error || "Користувач з таким логіном вже існує"
+          );
+        } else {
+          setUsernameError("Помилка сервера");
         }
-      );
-      showAlert("Реєстрація успішна! Увійдіть в систему.", "success");
-      window.location.href = "/login";
-    } catch (err) {
-      const data = err.response.data;
-      setUsernameError(data.usernameErr || "");
-    }
+      });
   };
 
   const googleLogin = () => {
