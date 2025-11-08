@@ -7,6 +7,7 @@ import Register from "./pages/register.jsx";
 import Login from "./pages/login.jsx";
 import Alert from "./components/alert.jsx";
 import Profile from "./pages/profile.jsx";
+import CahsRegister from "./pages/cash-register.jsx";
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
           <Route path="/register" element={<Register />}></Route>
           <Route path="/login" element={<Login />}></Route>
           <Route path="/profile" element={<Profile />}></Route>
+          <Route path="/cash" element={<CahsRegister />}/>
         </Routes>
       </Layout>
     </Router>

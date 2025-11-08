@@ -53,6 +53,11 @@ export default function Profile() {
     setErrors({ ...errors, [e.target.name]: "" });
   };
 
+  const [editingProfile, setEditingProfile] = useState(false);
+  const toggleEditingProfile = () => {
+    setEditingProfile(!editingProfile);
+  }
+
   const handleSaveProfile = async (e) => {
     e.preventDefault();
     setErrors({ fullName: "", phone: "", email: "", password: "" });
@@ -63,6 +68,7 @@ export default function Profile() {
         email: profile.email,
       }, { withCredentials: true });
 
+      setEditingProfile(false);
       showAlert("Дані профілю успішно оновлено", "success");
       await loadProfile();
     } catch (e) {
@@ -150,6 +156,7 @@ export default function Profile() {
             className="form-control"
             value={profile.fullName}
             onChange={handleProfileChange}
+            disabled={!editingProfile}
           />
           {!!errors.fullName && <span className="text-danger">{errors.fullName}</span>}
         </div>
@@ -161,6 +168,7 @@ export default function Profile() {
             className="form-control"
             value={profile.phone}
             onChange={handleProfileChange}
+            disabled={!editingProfile}
           />
           {!!errors.phone && <span className="text-danger">{errors.phone}</span>}
         </div>
@@ -173,12 +181,17 @@ export default function Profile() {
             className="form-control"
             value={profile.email}
             onChange={handleProfileChange}
+            disabled={!editingProfile}
           />
         {!!errors.email && <span className="text-danger">{errors.email}</span>}
         </div>
-
+        {editingProfile &&
         <button type="submit" className="btn btn-success w-100">Зберегти дані</button>
+        }
       </form>
+      {!editingProfile &&
+      <button type="button" onClick={toggleEditingProfile} className="btn btn-primary w-100">Редагувати дані</button>
+      }
 
       <hr />
 

@@ -3,12 +3,15 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
 using System.Linq;
 using System;
+using BusinessFinancialAccounting.Models.DTO;
 
 namespace BusinessFinancialAccounting.Controllers
 {
     /// <summary>
     /// Контролер для управління грошовими операціями користувача.
     /// </summary>
+    [ApiController]
+    [Route("api/[controller]")]
     public class CashController : Controller
     {
         private readonly AppDbContext _context;
@@ -22,15 +25,26 @@ namespace BusinessFinancialAccounting.Controllers
         /// Показує баланс користувача за рахунками готівки та картки.
         /// </summary>
         /// <returns>Представлення з інформацією про баланс користувача.</returns>
+        [HttpGet("cashregister")]
         public IActionResult CashBalance()
         {
             var userIdStr = HttpContext.Session.GetString("UserId");
-            if (userIdStr == null) return RedirectToAction("Login", "Account");
+            if (userIdStr == null) return Unauthorized();
 
             int userId = int.Parse(userIdStr);
             var cashRegister = _context.CashRegisters.FirstOrDefault(c => c.User.Id == userId);
 
-            return View(cashRegister);
+            if (cashRegister != null)
+            {
+            }
+            else
+            {
+                cashRegister = new CashRegister { CardBalance = 0, CashBalance = 0 };
+                _context.CashRegisters.Add(cashRegister);
+                _context.SaveChanges();
+            }
+
+            return Ok(new { cash = cashRegister.CashBalance, card = cashRegister.CardBalance });
         }
 
         /// <summary>
@@ -58,38 +72,38 @@ namespace BusinessFinancialAccounting.Controllers
         /// <returns>
         /// Часткове представлення з повідомленням про помилку, якщо сума перевищує баланс, або JSON-підтвердження успіху операції.
         /// </returns>
-        [HttpPost]
-        public IActionResult TransactionForm(TransactionViewModel model)
+        [HttpPost("transaction")]
+        public IActionResult TransactionForm(TransactionDTO model)
         {
             var userIdStr = HttpContext.Session.GetString("UserId");
             if (userIdStr == null) return RedirectToAction("Login", "Account");
 
             int userId = int.Parse(userIdStr);
             var cashRegister = _context.CashRegisters.FirstOrDefault(c => c.User.Id == userId);
-            if (cashRegister == null) return NotFound();
+            if (cashRegister == null) return BadRequest();
+            var message = "";
 
             if (model.ActionType == "withdraw")
             {
                 bool notEnough = (model.AccountType == "cash" && model.MoneyAmount > cashRegister.CashBalance)
                               || (model.AccountType == "card" && model.MoneyAmount > cashRegister.CardBalance);
 
+                
+
                 if (notEnough)
                 {
-                    model.ErrorMessage = "Сума перевищує доступний баланс!";
-                    return PartialView("_TransactionForm", model);
+                    return BadRequest(new { message = "Сума перевищує доступний баланс!" });
                 }
 
                 if (model.AccountType == "cash")
                 {
                     cashRegister.CashBalance -= model.MoneyAmount;
-                    TempData["AlertMsg"] = $"Видача готівки: {model.MoneyAmount} грн.";
-                    TempData["AlertType"] = "success";
+                    message = $"Видача готівки: {model.MoneyAmount} грн.";
                 }
                 else
                 {
                     cashRegister.CardBalance -= model.MoneyAmount;
-                    TempData["AlertMsg"] = $"Видача карткою: {model.MoneyAmount} грн.";
-                    TempData["AlertType"] = "success";
+                    message = $"Видача карткою: {model.MoneyAmount} грн.";
                 }
             }
             else if (model.ActionType == "deposit")
@@ -97,14 +111,12 @@ namespace BusinessFinancialAccounting.Controllers
                 if (model.AccountType == "cash")
                 {
                     cashRegister.CashBalance += model.MoneyAmount;
-                    TempData["AlertMsg"] = $"Внесення готівкою: {model.MoneyAmount} грн.";
-                    TempData["AlertType"] = "success";
+                    message = $"Внесення готівкою: {model.MoneyAmount} грн.";
                 } 
                 else
                 {
                     cashRegister.CardBalance += model.MoneyAmount;
-                    TempData["AlertMsg"] = $"Внесення карткою: {model.MoneyAmount} грн.";
-                    TempData["AlertType"] = "success";
+                    message = $"Внесення карткою: {model.MoneyAmount} грн.";
                 }
             }
 
@@ -120,7 +132,7 @@ namespace BusinessFinancialAccounting.Controllers
 
             _context.FinancialOperations.Add(operation);
             _context.SaveChanges();
-            return Json(new { success = "true"});
+            return Ok(new { message = message});
         }
     }
 }
