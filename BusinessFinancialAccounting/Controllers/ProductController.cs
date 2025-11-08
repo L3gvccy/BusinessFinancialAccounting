@@ -1,6 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using BusinessFinancialAccounting.Models;
 using BusinessFinancialAccounting.Models.DTO;
-using BusinessFinancialAccounting.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -14,20 +13,21 @@ namespace BusinessFinancialAccounting.Controllers
     public class ProductController : Controller
     {
         private readonly AppDbContext _context;
+
         public ProductController(AppDbContext context)
         {
             _context = context;
         }
+
         /// <summary>
         /// Показує список товарів користувача.
         /// </summary>
-        /// <returns>Представлення списку товарів користувача.</returns>
-        [HttpGet]
-        [ProducesResponseType(typeof(IEnumerable<ProductDTO>), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<ActionResult<IEnumerable<ProductDTO>>> GetProducts(CancellationToken ct)
+        /// <returns>Список товарів користувача.</returns>
+        [HttpGet("products")]
+        public async Task<ActionResult<IEnumerable<ProductDTO>>> Products(CancellationToken ct)
         {
-            if (!TryGetUserId(out var userId)) return Unauthorized();
+            if (!TryGetUserId(out var userId))
+                return Unauthorized(new { error = "Користувач не авторизований" });
 
             var products = await _context.Products
                 .AsNoTracking()
@@ -38,7 +38,7 @@ namespace BusinessFinancialAccounting.Controllers
                     Code = p.Code,
                     Name = p.Name,
                     Units = p.Units,
-                    Quantity = p.Quantity, // decimal
+                    Quantity = p.Quantity,
                     Price = p.Price
                 })
                 .ToListAsync(ct);
@@ -50,118 +50,123 @@ namespace BusinessFinancialAccounting.Controllers
         /// Повертає сторінку редагування товару за його ідентифікатором.
         /// </summary>
         /// <param name="id">Ідентифікатор товару.</param>
-        /// <returns>Представлення для редагування або NotFound, якщо товар не існує.</returns>
-        [HttpGet]
-        public async Task<IActionResult> EditProduct(int id)
+        /// <returns>Інформація про товар або NotFound, якщо товар не існує.</returns>
+        [HttpGet("edit/{id:int}")]
+        public async Task<IActionResult> EditProduct(int id, CancellationToken ct)
         {
-            var product = await _context.Products.FindAsync(id);
-            if (product == null)
-                return NotFound();
+            if (!TryGetUserId(out var userId)) return Unauthorized();
 
-            return View(product);
+            var product = await _context.Products
+                .AsNoTracking()
+                .Where(p => p.Id == id && p.User.Id == userId)
+                .Select(x => new ProductDTO
+                {
+                    Id = x.Id,
+                    Code = x.Code,
+                    Name = x.Name,
+                    Units = x.Units,
+                    Quantity = x.Quantity,
+                    Price = x.Price
+                })
+                .FirstOrDefaultAsync(ct);
+
+            if (product == null)
+                return NotFound(new { error = "Товар не знайдено" });
+
+            return Ok(product);
         }
 
         /// <summary>
         /// Обробляє редагування товару та оновлює дані у базі.
         /// </summary>
-        /// <param name="product">Модель з оновленими даними.</param>
-        /// <returns>
-        /// Повертає View з помилкою, якщо дані некоректні, або Redirect на список товарів після успішного оновлення.
-        /// </returns>
-        [HttpPost]
-        public async Task<IActionResult> EditProduct(Product product)
+        /// <param name="model">Модель з оновленими даними.</param>
+        /// <returns>Повідомлення про результат оновлення.</returns>
+        [HttpPost("edit")]
+        public async Task<IActionResult> EditProduct([FromBody] ProductUpdateDTO model, CancellationToken ct)
         {
-            if (product.Code <= 0 || product.Name == null || product.Quantity <= 0 || product.Price <= 0)
-            {
-                TempData["AlertMsg"] = $"Заповніть всі поля для оновлення товару";
-                TempData["AlertType"] = "danger";
-                return View(product);
-            }
+            if (!ModelState.IsValid) return ValidationProblem(ModelState);
+            if (!TryGetUserId(out var userId)) return Unauthorized();
 
-            _context.Products.Update(product);
-            await _context.SaveChangesAsync();
-            TempData["AlertMsg"] = $"Товар \"{product.Name}\" було успішно оновлено!";
-            TempData["AlertType"] = "success";
-            return RedirectToAction("Products");
-        }
+            var product = await _context.Products
+                .FirstOrDefaultAsync(p => p.Id == model.Id && p.User.Id == userId, ct);
 
-        /// <summary>
-        /// Повертає сторінку для додавання нового товару.
-        /// </summary>
-        /// <returns>Представлення для додавання товару.</returns>
-        [HttpGet]
-        public IActionResult AddProduct()
-        {
-            return View();
+            if (product == null)
+                return NotFound(new { error = "Товар не знайдено" });
+
+            product.Code = model.Code;
+            product.Name = model.Name!;
+            product.Units = model.Units!;
+            product.Quantity = model.Quantity;
+            product.Price = model.Price;
+
+            await _context.SaveChangesAsync(ct);
+            return Ok(new { message = $"Товар \"{product.Name}\" було успішно оновлено!" });
         }
 
         /// <summary>
         /// Обробляє додавання нового товару для користувача.
         /// </summary>
-        /// <param name="product">Модель з даними нового товару.</param>
-        /// <returns>
-        /// Повертає View з помилкою, якщо дані некоректні, або Redirect на список товарів після успішного додавання/оновлення.
-        /// </returns>
-        [HttpPost]
-        public async Task<IActionResult> AddProduct(Product product)
+        /// <param name="model">Модель з даними нового товару.</param>
+        /// <returns>Повідомлення про успішне додавання або оновлення кількості.</returns>
+        [HttpPost("add")]
+        public async Task<IActionResult> AddProduct([FromBody] ProductCreateDTO model, CancellationToken ct)
         {
-            var userIdStr = HttpContext.Session.GetString("UserId");
-            if (userIdStr == null) return RedirectToAction("Login", "Account");
-            int userId = int.Parse(userIdStr);
-            var user = await _context.Users.FindAsync(userId);
-            if (user == null) return NotFound();
+            if (!ModelState.IsValid) return ValidationProblem(ModelState);
+            if (!TryGetUserId(out var userId)) return Unauthorized();
 
-            if (product.Code <= 0 || product.Name == null || product.Quantity <= 0 || product.Price <= 0)
-            {
-                TempData["AlertMsg"] = $"Заповніть всі поля для додавання товару";
-                TempData["AlertType"] = "danger";
-                return View(product);
-            }
-                
+            var user = await _context.Users.FindAsync(new object[] { userId }, ct);
+            if (user == null) return Unauthorized();
 
-            var existingProduct = await _context.Products.FirstOrDefaultAsync(p => p.Code == product.Code && p.User.Id == userId);
+            var existingProduct = await _context.Products
+                .FirstOrDefaultAsync(p => p.Code == model.Code && p.User.Id == userId, ct);
 
             if (existingProduct != null)
             {
-                existingProduct.Quantity += product.Quantity;
-                _context.Products.Update(existingProduct);
-                TempData["AlertMsg"] = $"Кількість товару \"{product.Name}\" було оновлено до {existingProduct.Quantity}!";
-                TempData["AlertType"] = "success";
+                existingProduct.Quantity += model.Quantity;
+                await _context.SaveChangesAsync(ct);
+
+                return Ok(new { message = $"Кількість товару \"{existingProduct.Name}\" оновлено до {existingProduct.Quantity}" });
             }
-            else
+
+            var product = new Product
             {
-                product.User = user;
-                _context.Products.Add(product);
-                TempData["AlertMsg"] = $"Товар \"{product.Name}\" було успішно додано!";
-                TempData["AlertType"] = "success";
+                Code = model.Code,
+                Name = model.Name!,
+                Units = model.Units!,
+                Quantity = model.Quantity,
+                Price = model.Price,
+                User = user
             };
 
-            await _context.SaveChangesAsync();
-            return RedirectToAction("Products");
+            _context.Products.Add(product);
+            await _context.SaveChangesAsync(ct);
+
+            return Ok(new { message = $"Товар \"{product.Name}\" було успішно додано!" });
         }
 
         /// <summary>
-        /// Шукає товар за його кодом і повертає JSON-обʼєкт з інформацією.
+        /// Шукає товар за його кодом і повертає його дані.
         /// </summary>
         /// <param name="code">Код товару для пошуку.</param>
-        /// <returns>
-        /// JSON-обʼєкт з полями Code, Name, Units, Price,
-        /// або null, якщо товар не знайдено.
-        /// </returns>
-        [HttpGet]
-        public async Task<IActionResult> FindByCode(int code)
+        /// <returns>JSON-обʼєкт з інформацією про товар або 404, якщо не знайдено.</returns>
+        [HttpGet("find-by-code")]
+        public async Task<IActionResult> FindByCode([FromQuery] int code, CancellationToken ct)
         {
-            var product = await _context.Products.FirstOrDefaultAsync(p => p.Code == code);
+            if (!TryGetUserId(out var userId)) return Unauthorized();
+
+            var product = await _context.Products
+                .AsNoTracking()
+                .FirstOrDefaultAsync(p => p.Code == code && p.User.Id == userId, ct);
 
             if (product == null)
-                return Json(null);
+                return NotFound(new { error = "Товар не знайдено" });
 
-            return Json(new
+            return Ok(new ProductBriefDTO
             {
-                product.Code,
-                product.Name,
-                product.Units,
-                product.Price
+                Code = product.Code,
+                Name = product.Name,
+                Units = product.Units,
+                Price = product.Price
             });
         }
 
