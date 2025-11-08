@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using BusinessFinancialAccounting.Models.DTO;
-using BusinessFinancialAccounting.Controllers.DTO;
 using BusinessFinancialAccounting.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -164,6 +163,13 @@ namespace BusinessFinancialAccounting.Controllers
                 product.Units,
                 product.Price
             });
+        }
+
+        private bool TryGetUserId(out int userId)
+        {
+            userId = 0;
+            var s = HttpContext.Session.GetString("UserId");
+            return int.TryParse(s, out userId);
         }
     }
 }
