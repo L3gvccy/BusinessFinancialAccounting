@@ -1,4 +1,7 @@
-﻿using BusinessFinancialAccounting.Models;
+﻿using System.ComponentModel.DataAnnotations;
+using BusinessFinancialAccounting.Models.DTO;
+using BusinessFinancialAccounting.Controllers.DTO;
+using BusinessFinancialAccounting.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -7,6 +10,8 @@ namespace BusinessFinancialAccounting.Controllers
     /// <summary>
     /// Контролер для керування товарами користувача.
     /// </summary>
+    [ApiController]
+    [Route("api/[controller]")]
     public class ProductController : Controller
     {
         private readonly AppDbContext _context;
@@ -18,15 +23,28 @@ namespace BusinessFinancialAccounting.Controllers
         /// Показує список товарів користувача.
         /// </summary>
         /// <returns>Представлення списку товарів користувача.</returns>
-        public async Task<IActionResult> Products()
+        [HttpGet]
+        [ProducesResponseType(typeof(IEnumerable<ProductDTO>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<ActionResult<IEnumerable<ProductDTO>>> GetProducts(CancellationToken ct)
         {
-            var userIdStr = HttpContext.Session.GetString("UserId");
-            if (userIdStr == null) return RedirectToAction("Login", "Account");
+            if (!TryGetUserId(out var userId)) return Unauthorized();
 
-            int userId = int.Parse(userIdStr);
+            var products = await _context.Products
+                .AsNoTracking()
+                .Where(p => p.User.Id == userId)
+                .Select(p => new ProductDTO
+                {
+                    Id = p.Id,
+                    Code = p.Code,
+                    Name = p.Name,
+                    Units = p.Units,
+                    Quantity = p.Quantity, // decimal
+                    Price = p.Price
+                })
+                .ToListAsync(ct);
 
-            var products = await _context.Products.Include(p => p.User).Where(p => p.User.Id == userId).ToListAsync();
-            return View(products);
+            return Ok(products);
         }
 
         /// <summary>
