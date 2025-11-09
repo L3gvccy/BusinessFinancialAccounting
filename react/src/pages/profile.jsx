@@ -45,6 +45,7 @@ export default function Profile() {
 
   useEffect(() => {
     loadProfile();
+    document.title = "Профіль"
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

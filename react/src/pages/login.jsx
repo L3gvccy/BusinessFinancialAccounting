@@ -1,4 +1,4 @@
-import { use, useState } from "react";
+import { use, useEffect, useState } from "react";
 import React from "react";
 import axios from "axios";
 
@@ -36,6 +36,10 @@ export default function Login() {
         }
       });
   }
+
+  useEffect(() => {
+    document.title = "Вхід"
+  }, [])
 
   return (
     <div className="d-block mx-auto my-3 p-3" style={{ maxWidth: "500px" }}>

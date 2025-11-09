@@ -141,6 +141,7 @@ export default function Products() {
 
     useEffect(() => {
         getProducts()
+        document.title = "Товари"
     }, [])
 
     return (

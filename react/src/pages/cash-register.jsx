@@ -22,6 +22,7 @@ export default function CashRegister() {
         }
 
     useEffect(() => {
+        document.title = "Баланс"
         fetch()
     }, [])
 

@@ -1,7 +1,11 @@
-import React from "react";
+import React, { useEffect } from "react";
 import CardFeature from "../components/card-feature";
 
 export default function Home() {
+  useEffect(() => {
+    document.title = "Головна"
+  }, [])
+
   return (
     <div className="container mt-5">
       <div className="text-center">

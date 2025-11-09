@@ -76,8 +76,12 @@ export default function Register() {
 
   const googleLogin = () => {
     window.location.href =
-      "http://localhost:5001/Account/ExternalLogin?provider=Google";
+      "http://localhost:5081/Account/ExternalLogin?provider=Google";
   };
+
+  useEffect(() => {
+      document.title = "Реєстрація"
+    }, [])
 
   return (
     <div className="d-block mx-auto my-3 p-3" style={{ maxWidth: "500px" }}>
