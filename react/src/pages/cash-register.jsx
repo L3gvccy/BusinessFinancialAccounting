@@ -2,7 +2,7 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import TransactionModal from "../components/transaction-modal";
 
-export default function CahsRegister() {
+export default function CashRegister() {
     const API = "http://localhost:5081/api"
     const [balance, setBalance] = useState({
         "cash": 0,
