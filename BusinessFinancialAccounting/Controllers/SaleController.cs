@@ -1,4 +1,5 @@
 ﻿using BusinessFinancialAccounting.Models;
+using BusinessFinancialAccounting.Models.DTO;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
@@ -8,6 +9,8 @@ namespace BusinessFinancialAccounting.Controllers
     /// <summary>
     /// Контролер для управління продажами та роботою з кошиком.
     /// </summary>
+    [ApiController]
+    [Route("api/[controller]")]
     public class SaleController : Controller
     {
         private readonly AppDbContext _context;
@@ -92,162 +95,107 @@ namespace BusinessFinancialAccounting.Controllers
         /// </summary>
         /// <param name="code">Код товару.</param>
         /// <returns>Redirect на сторінку продажу.</returns>
-        [HttpPost]
-        public async Task<IActionResult> AddByCode([FromForm] int code)
+        [HttpPost("add-by-code")]
+        public async Task<IActionResult> AddByCode([FromBody] AddByCodeDTO model)
         {
             var userId = TryGetUserId();
-            if (userId == null) return RedirectToAction("Login", "Account");
+            if (userId == null) return Unauthorized();
+            string message = "";
 
             var product = await _context.Products
                 .Include(p => p.User)
-                .FirstOrDefaultAsync(p => p.User.Id == userId && p.Code == code);
+                .FirstOrDefaultAsync(p => p.User.Id == userId && p.Code == model.Code);
 
             if (product == null)
             {
-                TempData["AlertMsg"] = $"Товар з кодом {code} не знайдено";
-                TempData["AlertType"] = "danger";
-                return RedirectToAction("Sale");
+                message = $"Товар з кодом {model.Code} не знайдено";
+                return NotFound(new { message = message });
             }
 
-           
 
-            var cart = GetCart();
-            cart.TryGetValue(product.Id, out var inCart);
-            if (inCart + 1 > product.Quantity)
+            if (model.Quantity + 1 > product.Quantity)
             {
-                TempData["AlertMsg"] = $"Недостатньо залишку для \"{product.Name}\": доступно {product.Quantity} {product.Units}.";
-                TempData["AlertType"] = "warning";
-                return RedirectToAction("Sale");
+                message = $"Недостатньо залишку для \"{product.Name}\": доступно {product.Quantity} {product.Units}.";
+                return BadRequest(new { message = message });
             }
-            cart[product.Id] = inCart + 1;
-            SaveCart(cart);
 
-            return RedirectToAction("Sale");
+            var productToAdd = new ProductToAddDTO { Code = product.Code, Name = product.Name, Price = product.Price, Units = product.Units };
+            var maxQty = product.Quantity;
+            message = $"Товар \"{product.Name}\" додано до кошику";
+            return Ok(new { product = productToAdd, message = message, maxQty = maxQty });
         }
 
         /// <summary>
-        /// Змінює кількість товару у кошику.
+        /// Обробка зміни кількості товару
         /// </summary>
-        /// <param name="productId">ID товару.</param>
-        /// <param name="qty">Нова кількість у вигляді рядка.</param>
-        /// <returns>Redirect на сторінку продажу.</returns>
-        [HttpPost]
-        public async Task<IActionResult> ChangeQty([FromForm] int productId, [FromForm] string qty)
+        /// <param name="model">Модель для зміни кількості товару в кошику</param>
+        /// <returns>Статус обробки запиту</returns>
+        [HttpPost("change-qty")]
+        public async Task<IActionResult> ChangeQty([FromBody] ChangeQuantityDTO model)
         {
             var userId = TryGetUserId();
-            if (userId == null) return RedirectToAction("Login", "Account");
+            if (userId == null) return Unauthorized();
 
             var cart = GetCart();
 
             var product = await _context.Products
                 .Include(p => p.User)
-                .FirstOrDefaultAsync(p => p.User.Id == userId && p.Id == productId);
+                .FirstOrDefaultAsync(p => p.User.Id == userId && p.Code == model.Code);
 
-            if (product == null)
+            if (model.Quantity > product.Quantity)
             {
-                cart.Remove(productId);
-                SaveCart(cart);
-                TempData["AlertMsg"] = "Товар не знайдено або він не належить цьому користувачу.";
-                TempData["AlertType"] = "danger";
-                return RedirectToAction("Sale");
+                var maxQuantity = product.Quantity;
+                var message = $"Недостатньо залишку для \"{product.Name}\": максимум {product.Quantity} {product.Units}.";
+                return BadRequest(new { maxQuantity = maxQuantity, message = message });
             }
 
-            // Конвертуємо рядок у decimal
-            if (!decimal.TryParse(qty, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out decimal qtyDecimal))
-            {
-                // некоректний ввід — залишаємо попередню кількість
-                TempData["AlertMsg"] = $"Неправильне значення кількості для \"{product.Name}\".";
-                TempData["AlertType"] = "warning";
-                return RedirectToAction("Sale");
-            }
-
-            // Встановлюємо крок
-            decimal step = product.Units == "шт" ? 1m : 0.001m;
-            qtyDecimal = Math.Round(qtyDecimal / step) * step;
-
-            if (product.Units == "шт" && qtyDecimal < 1)
-                qtyDecimal = 1;
-
-            if (product.Units == "кг" && qtyDecimal <= 0)
-            {
-                cart.Remove(productId);
-                SaveCart(cart);
-                return RedirectToAction("Sale");
-            }
-
-            if (qtyDecimal > product.Quantity)
-            {
-                qtyDecimal = product.Quantity;
-                TempData["AlertMsg"] = $"Недостатньо залишку для \"{product.Name}\": максимум {product.Quantity} {product.Units}.";
-                TempData["AlertType"] = "warning";
-            }
-
-            cart[productId] = qtyDecimal;
-            SaveCart(cart);
-
-            return RedirectToAction("Sale");
-        }
-
-        /// <summary>
-        /// Видаляє товар з кошика.
-        /// </summary>
-        /// <param name="productId">ID товару для видалення.</param>
-        /// <returns>Redirect на сторінку продажу.</returns>
-        [HttpPost]
-        public IActionResult Remove([FromForm] int productId)
-        {
-            var userId = TryGetUserId();
-            if (userId == null) return RedirectToAction("Login", "Account");
-
-            var cart = GetCart();
-            cart.Remove(productId);
-            SaveCart(cart);
-
-            return RedirectToAction("Sale");
-        }
-
-        /// <summary>
-        /// Очищає кошик.
-        /// </summary>
-        /// <returns>Redirect на сторінку продажу.</returns>
-        [HttpPost]
-        public IActionResult Clear()
-        {
-            var userId = TryGetUserId();
-            if (userId == null) return RedirectToAction("Login", "Account");
-
-            SaveCart(new Dictionary<int, decimal>());
-            return RedirectToAction("Sale");
+            return Ok();
         }
 
         /// <summary>
         /// Виконує оплату товарів у кошику.
         /// </summary>
-        /// <param name="method">Метод оплати: "cash" або "card".</param>
+        /// <param name="model">DTO для передачі товарів в кошишку та методу оплати</param>
         /// <returns>Redirect на сторінку продажу.</returns>
-        [HttpPost]
-        public async Task<IActionResult> Pay([FromQuery] string method) // cash|card
+        [HttpPost("pay")]
+        public async Task<IActionResult> Pay([FromBody] PayRequestDTO model)
         {
             var userId = TryGetUserId();
-            if (userId == null) return RedirectToAction("Login", "Account");
+            if (userId == null)
+                return Unauthorized(new { message = "Потрібно увійти в систему" });
 
-            method = (method ?? "").ToLowerInvariant();
+            var method = (model?.Method ?? "").ToLowerInvariant();
             if (method != "cash" && method != "card")
-            {
-                TempData["AlertMsg"] = "Невідомий метод оплати";
-                TempData["AlertType"] = "danger";
-                return RedirectToAction("Sale");
-            }
+                return BadRequest(new { message = "Невідомий метод оплати" });
+
+            if (model.Products == null || !model.Products.Any())
+                return BadRequest(new { message = "Кошик порожній" });
 
             var user = await _context.Users.FindAsync(userId.Value);
-            if (user == null) return RedirectToAction("Login", "Account");
+            if (user == null)
+                return Unauthorized(new { message = "Користувача не знайдено" });
 
-            var (products, qty, total) = await BuildCartDataAsync(userId.Value);
-            if (!products.Any())
+            decimal total = 0;
+            var validProducts = new List<Product>();
+
+            foreach (var item in model.Products)
             {
-                TempData["AlertMsg"] = "Кошик порожній";
-                TempData["AlertType"] = "warning";
-                return RedirectToAction("Sale");
+                var product = await _context.Products
+                    .Include(p => p.User)
+                    .FirstOrDefaultAsync(p => p.User.Id == userId && p.Code == item.Code);
+
+                if (product == null)
+                    return NotFound(new { message = $"Товар з кодом {item.Code} не знайдено" });
+
+                if (item.Quantity > product.Quantity)
+                    return BadRequest(new
+                    {
+                        message = $"Недостатньо залишку для \"{product.Name}\": максимум {product.Quantity} {product.Units}.",
+                        maxQty = product.Quantity
+                    });
+
+                validProducts.Add(product);
+                total += product.Price * item.Quantity;
             }
 
             var receipt = new Receipt
@@ -255,27 +203,30 @@ namespace BusinessFinancialAccounting.Controllers
                 User = user,
                 TotalPrice = total,
                 TimeStamp = DateTime.Now,
-                PaymentMethod = method.ToLower()
+                PaymentMethod = method
             };
             _context.Reciepts.Add(receipt);
 
-            foreach (var p in products)
+            foreach (var item in model.Products)
             {
-                var q = qty[p.Id];
+                var product = validProducts.First(p => p.Code == item.Code);
+
                 _context.ReceiptProducts.Add(new ReceiptProduct
                 {
-                    Code = p.Code,
-                    Name = p.Name,
-                    Units = p.Units,
-                    Price = p.Price,
-                    Quantity = q,
-                    TotalPrice = Math.Round(p.Price * q, 2),
+                    Code = product.Code,
+                    Name = product.Name,
+                    Units = product.Units,
+                    Price = product.Price,
+                    Quantity = item.Quantity,
+                    TotalPrice = Math.Round(product.Price * item.Quantity, 2),
                     Receipt = receipt
                 });
-                p.Quantity -= q;
+
+                product.Quantity -= item.Quantity;
             }
 
-            var register = await _context.CashRegisters.Include(r => r.User)
+            var register = await _context.CashRegisters
+                .Include(r => r.User)
                 .FirstOrDefaultAsync(r => r.User.Id == userId);
 
             if (register == null)
@@ -285,24 +236,29 @@ namespace BusinessFinancialAccounting.Controllers
             }
 
             var inc = (int)Math.Round(total, MidpointRounding.AwayFromZero);
+            string paymentInfo;
+
             if (method == "cash")
             {
                 register.CashBalance += inc;
-                TempData["AlertMsg"] = $"Оплата ГОТІВКОЮ: {inc} грн.";
-                TempData["AlertType"] = "success";
+                paymentInfo = $"Оплата ГОТІВКОЮ: {inc} грн.";
             }
             else
             {
                 register.CardBalance += inc;
-                TempData["AlertMsg"] = $"Оплата КАРТКОЮ: {inc} грн.";
-                TempData["AlertType"] = "success";
+                paymentInfo = $"Оплата КАРТКОЮ: {inc} грн.";
             }
 
             await _context.SaveChangesAsync();
 
-            SaveCart(new Dictionary<int, decimal>());
-
-            return RedirectToAction("Sale");
+            return Ok(new
+            {
+                message = paymentInfo,
+                total,
+                method,
+                timestamp = receipt.TimeStamp
+            });
         }
+
     }
 }

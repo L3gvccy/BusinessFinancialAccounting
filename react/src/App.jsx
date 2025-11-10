@@ -9,6 +9,7 @@ import Alert from "./components/alert.jsx";
 import Profile from "./pages/profile.jsx";
 import CashRegister from "./pages/cash-register.jsx";
 import Products from "./pages/products.jsx";
+import Sale from "./pages/sale.jsx";
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
           <Route path="/profile" element={<Profile />}></Route>
           <Route path="/cash" element={<CashRegister />}/>
           <Route path="/products" element={<Products />}/>
+          <Route path="/sale" element={<Sale />} />
         </Routes>
       </Layout>
     </Router>

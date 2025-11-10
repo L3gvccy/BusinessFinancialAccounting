@@ -52,7 +52,7 @@ export default function Header() {
                   </Link>
                 </li>
                 <li>
-                  <Link className="nav-link" to="/sales">
+                  <Link className="nav-link" to="/sale">
                     Продаж
                   </Link>
                 </li>
