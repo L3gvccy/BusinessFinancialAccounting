@@ -101,28 +101,31 @@ namespace BusinessFinancialAccounting.Controllers
         }
 
 
-        [HttpGet]
-        public IActionResult ExternalLogin(string provider, string returnUrl = "/")
+        [HttpGet("external-login")]
+        public IActionResult ExternalLogin(string provider)
         {
-            var redirectUrl = Url.Action(nameof(ExternalLoginCallback), "Account", new { returnUrl });
+            var redirectUrl = Url.Action(nameof(ExternalLoginCallback), "Account");
             var properties = new AuthenticationProperties { RedirectUri = redirectUrl };
+
             return Challenge(properties, provider);
         }
-
-        [HttpGet]
-        public async Task<IActionResult> ExternalLoginCallback(string provider="Google", string returnUrl = "/")
+        [HttpGet("external-login-callback")]
+        public async Task<IActionResult> ExternalLoginCallback(string provider = "Google")
         {
-            var result = await HttpContext.AuthenticateAsync("Google");
-            if (!result.Succeeded) return RedirectToAction("Login");
+            var result = await HttpContext.AuthenticateAsync(provider);
+            if (!result.Succeeded)
+                return Redirect("http://localhost:5173/login?error=google_auth_failed");
 
             var claims = result.Principal?.Claims;
-            if (claims == null) return RedirectToAction("Login");
+            if (claims == null)
+                return Redirect("http://localhost:5173/login?error=google_no_claims");
 
             var email = claims.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
             var name = claims.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value;
             var oauthId = claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
 
-            if (email == null || oauthId == null) return RedirectToAction("Login");
+            if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(oauthId))
+                return Redirect("http://localhost:5173/login?error=google_missing_data");
 
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
 
@@ -146,7 +149,6 @@ namespace BusinessFinancialAccounting.Controllers
                     CashBalance = 0,
                     CardBalance = 0
                 };
-
                 _context.CashRegisters.Add(cashRegister);
 
                 await _context.SaveChangesAsync();
@@ -168,15 +170,16 @@ namespace BusinessFinancialAccounting.Controllers
                 new Claim(ClaimTypes.Name, user.Username),
                 new Claim(ClaimTypes.Email, user.Email)
             };
-
             var identity = new ClaimsIdentity(userClaims, CookieAuthenticationDefaults.AuthenticationScheme);
             await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(identity));
+
 
             HttpContext.Session.SetString("Username", user.Username);
             HttpContext.Session.SetString("UserId", user.Id.ToString());
 
-            return LocalRedirect(returnUrl);
+            return Redirect("http://localhost:5173/");
         }
+
 
         [HttpGet("profile")]
         public async Task<IActionResult> GetProfile()
@@ -284,8 +287,10 @@ namespace BusinessFinancialAccounting.Controllers
         [HttpGet("link-google")]
         public IActionResult LinkGoogle()
         {
+ 
             var redirectUrl = Url.Action(nameof(LinkGoogleCallback), "Account");
             var properties = new AuthenticationProperties { RedirectUri = redirectUrl };
+
             return Challenge(properties, "Google");
         }
 
@@ -293,26 +298,27 @@ namespace BusinessFinancialAccounting.Controllers
         public async Task<IActionResult> LinkGoogleCallback()
         {
             var result = await HttpContext.AuthenticateAsync("Google");
-            if (!result.Succeeded) return Redirect("http://localhost:5173/profile");
+            if (!result.Succeeded)
+                return Redirect("http://localhost:5173/profile?error=google_auth_failed");
 
             var email = result.Principal?.FindFirstValue(ClaimTypes.Email);
             var oauthId = result.Principal?.FindFirstValue(ClaimTypes.NameIdentifier);
 
             var userIdStr = HttpContext.Session.GetString("UserId");
             if (string.IsNullOrEmpty(userIdStr) || !int.TryParse(userIdStr, out var userId))
-                return Redirect("http://localhost:5173/profile");
+                return Redirect("http://localhost:5173/profile?error=session_expired");
 
             var user = await _context.Users.FindAsync(userId);
-            if (user != null && email == user.Email)
-            {
-                user.OAuthId = oauthId;
-                user.OAuthProvider = "Google";
-                _context.Users.Update(user);
-                await _context.SaveChangesAsync();
-            }
+            if (user == null)
+                return Redirect("http://localhost:5173/profile?error=user_not_found");
 
-            Redirect("http://localhost:5173/profile");
-            return Ok(new { message = "Google авторизацію прив’язано" });
+            user.OAuthId = oauthId;
+            user.OAuthProvider = "Google";
+            _context.Users.Update(user);
+            await _context.SaveChangesAsync();
+
+            return Redirect("http://localhost:5173/profile?success=google_linked");
         }
+
     }
 }

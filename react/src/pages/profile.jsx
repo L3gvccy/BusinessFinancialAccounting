@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { useLocation } from "react-router-dom";
 import { showAlert } from "../utils/show-alert.js";
 import { PuffLoader } from 'react-spinners'
 
@@ -25,6 +26,40 @@ export default function Profile() {
     newPassword: "",
     confirmPassword: "",
   });
+
+    const location = useLocation();
+    const getQueryParam = (param) => {
+        const params = new URLSearchParams(location.search);
+        return params.get(param);
+    };
+
+    useEffect(() => {
+        const success = getQueryParam("success");
+        const error = getQueryParam("error");
+
+        if (success) {
+            showAlert(successMessage(success), "success");
+        } else if (error) {
+            showAlert(errorMessage(error), "danger");
+        }
+    }, [location]);
+
+    const successMessage = (code) => {
+        switch (code) {
+            case "google_linked": return "Google-акаунт успішно прив’язано!";
+            default: return "Операція виконана успішно.";
+        }
+    };
+
+    const errorMessage = (code) => {
+        switch (code) {
+            case "google_auth_failed": return "Не вдалося виконати Google-авторизацію.";
+            case "session_expired": return "Сесія закінчилася. Увійдіть ще раз.";
+            case "user_not_found": return "Користувача не знайдено.";
+            case "email_mismatch": return "Email не збігається з вашим акаунтом.";
+            default: return "Сталася невідома помилка.";
+        }
+    };
 
   const loadProfile = async () => {
     try {
@@ -133,7 +168,6 @@ export default function Profile() {
 
   const linkGoogle = async () => {
     window.location.href = `${API}/link-google`;
-    showAlert("Google прив'язаний", "success");
   };
 
   if (loading) {

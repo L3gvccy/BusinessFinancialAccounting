@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
 
@@ -74,17 +74,16 @@ export default function Register() {
       });
   };
 
-  const googleLogin = () => {
-    window.location.href =
-      "http://localhost:5081/Account/ExternalLogin?provider=Google";
-  };
+  const handleGoogleLogin = () => {
+      window.location.href = "http://localhost:5081/api/account/external-login?provider=Google&returnUrl=/";
+    };
 
   useEffect(() => {
       document.title = "Реєстрація"
     }, [])
 
   return (
-    <div className="d-block mx-auto my-3 p-3" style={{ maxWidth: "500px" }}>
+    <div className="d-block mx-auto p-3" style={{ maxWidth: "500px" }}>
       <h2 className="text-center my-3">Реєстрація</h2>
 
       <form style={{ width: "100%" }} onSubmit={handleRegisterClick}>
@@ -216,9 +215,9 @@ export default function Register() {
         </div>
       </form>
 
-      <h4>Або увійдіть через:</h4>
+      <p className="my-2">Або увійдіть через:</p>
 
-      <button onClick={googleLogin} className="btn btn-danger w-100">
+      <button onClick={handleGoogleLogin} className="btn btn-danger w-100">
         <i className="fab fa-google"></i> Google
       </button>
     </div>

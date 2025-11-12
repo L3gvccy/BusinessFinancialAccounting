@@ -129,6 +129,7 @@ export default function Reports () {
             <div className="col-4" style={{ height: "50vh" }}>
                 <h5>Список чеків</h5>
                 <ul className="list-group overflow-auto" style={{ maxHeight: "calc(50vh - 32px)" }}>
+                {receipts.length === 0 && <p className="text-muted">Ще немає жодного чеку</p>}
                 {receipts.map((receipt) => {
                     return (
                     <li className={`list-group-item d-flex justify-content-between align-items-center` + (selectedReceipt?.id == receipt.id ? " bg-light" : "")}

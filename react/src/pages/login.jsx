@@ -1,4 +1,5 @@
 import { use, useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import React from "react";
 import axios from "axios";
 
@@ -37,16 +38,26 @@ export default function Login() {
       });
   }
 
-  useEffect(() => {
-    document.title = "Вхід"
-  }, [])
+    const handleGoogleLogin = () => {
+      window.location.href = "http://localhost:5081/api/account/external-login?provider=Google&returnUrl=/";
+    };
+
+    useEffect(() => {
+      document.title = "Вхід";
+
+      const params = new URLSearchParams(window.location.search);
+      const error = params.get("error");
+      if (error === "google_auth_failed") {
+        showAlert("Помилка авторизації через Google", "danger");
+      }
+    }, []);
 
   return (
-    <div className="d-block mx-auto my-3 p-3" style={{ maxWidth: "500px" }}>
+    <div className="d-block mx-auto p-3" style={{ maxWidth: "500px" }}>
       <h2 className="text-center my-3">Вхід</h2>
 
       <form style={{ width: "100%" }} onSubmit={handleSubmit}>
-        <fieldset className="border rounded-3 p-3 mb-4">
+        <fieldset className="border rounded-3 p-3 mb-2">
           <legend className="float-none w-auto px-2 fs-5">
             Дані користувача
           </legend>
@@ -83,8 +94,20 @@ export default function Login() {
               Увійти
             </button>
           </div>
+          
         </fieldset>
       </form>
+
+      <p className="text-center mb-2">Не маєте акаунту?</p>
+        <div className="d-flex justify-content-center">
+          <Link to="/register">Зареєструватися</Link>
+        </div>
+
+      <p className="my-2">Або увійдіть через:</p>
+
+      <button onClick={handleGoogleLogin} className="btn btn-danger w-100">
+        <i className="fab fa-google"></i> Google
+      </button>
     </div>
   );
 }
