@@ -1,7 +1,7 @@
-// src/pages/Profile.jsx
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { showAlert } from "../utils/show-alert.js";
+import { PuffLoader } from 'react-spinners'
 
 const API = "http://localhost:5081/api/account";
 
@@ -46,7 +46,6 @@ export default function Profile() {
   useEffect(() => {
     loadProfile();
     document.title = "Профіль"
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleProfileChange = (e) => {
@@ -133,15 +132,17 @@ export default function Profile() {
   };
 
   const linkGoogle = async () => {
-    // редірект у бекенд, який зробить Challenge і потім поверне на /profile
     window.location.href = `${API}/link-google`;
     showAlert("Google прив'язаний", "success");
   };
 
   if (loading) {
-    return <div className="d-block mx-auto my-3 p-3" style={{ maxWidth: 500 }}>
-      Завантаження...
-    </div>;
+    return <div className="d-flex justify-content-center align-items-center" style={{ height: "75vh" }}>
+                <PuffLoader
+                color="#00fffa"
+                size={120}
+                />
+            </div>
   }
 
   return (
