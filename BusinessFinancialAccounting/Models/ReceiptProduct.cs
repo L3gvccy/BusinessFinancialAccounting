@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace BusinessFinancialAccounting.Models
 {
@@ -18,6 +19,7 @@ namespace BusinessFinancialAccounting.Models
         public decimal TotalPrice { get; set; }
         [ForeignKey(nameof(Receipt))]
         public int ReceiptId { get; set; }
+        [JsonIgnore]
         public Receipt Receipt { get; set; }
     }
 }

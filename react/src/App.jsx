@@ -1,5 +1,4 @@
 import React from "react";
-import { useState } from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import Layout from "./components/layout";
 import Home from "./pages/home.jsx";
@@ -10,6 +9,8 @@ import Profile from "./pages/profile.jsx";
 import CashRegister from "./pages/cash-register.jsx";
 import Products from "./pages/products.jsx";
 import Sale from "./pages/sale.jsx";
+import Reports from "./pages/reports.jsx";
+import ViewReport from "./pages/view-report.jsx";
 
 function App() {
   return (
@@ -24,6 +25,8 @@ function App() {
           <Route path="/cash" element={<CashRegister />}/>
           <Route path="/products" element={<Products />}/>
           <Route path="/sale" element={<Sale />} />
+          <Route path="/reports" element={<Reports />} />
+          <Route path="/reports/:id" element={<ViewReport />} />
         </Routes>
       </Layout>
     </Router>

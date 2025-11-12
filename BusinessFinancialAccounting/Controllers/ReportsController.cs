@@ -1,12 +1,15 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using BusinessFinancialAccounting.Models;
+using BusinessFinancialAccounting.Models.DTO;
 
 namespace BusinessFinancialAccounting.Controllers
 {
     /// <summary>
     /// Контролер для управління фінансовими звітами користувача.
     /// </summary>
+    [ApiController]
+    [Route("api/[controller]")]
     public class ReportsController : Controller
     {
         private readonly AppDbContext _context;
@@ -27,13 +30,14 @@ namespace BusinessFinancialAccounting.Controllers
         }
 
         /// <summary>
-        /// Показує головну сторінку звітів користувача.
+        /// Отримання чеків та звітів користувача.
         /// </summary>
-        /// <returns>Представлення зі списком отриманих чеків та звітів користувача.</returns>
+        /// <returns>Список отриманих чеків та звітів користувача.</returns>
+        [HttpGet]
         public async Task<IActionResult> Index()
         {
             var userId = TryGetUserId();
-            if (userId == null) return RedirectToAction("Login", "Account");
+            if (userId == null) return Unauthorized();
 
             var receipts = await _context.Reciepts
                 .Include(r => r.Products)
@@ -46,35 +50,31 @@ namespace BusinessFinancialAccounting.Controllers
                 .OrderByDescending(r => r.StartDate)
                 .ToListAsync();
 
-            ViewBag.Receipts = receipts;
-            ViewBag.Reports = reports;
-
-            return View();
+            return Ok(new { receipts, reports });
         }
 
         /// <summary>
         /// Генерує новий фінансовий звіт за вказаний період.
         /// </summary>
-        /// <param name="startDate">Дата початку звітного періоду.</param>
-        /// <param name="endDate">Дата кінця звітного періоду.</param>
-        /// <returns>Redirect на перегляд згенерованого звіту.</returns>
-        [HttpPost]
-        public async Task<IActionResult> GenerateReport(DateTime startDate, DateTime endDate)
+        /// <param name="model">DTO, що містить дату початку та кінця звітного періоду.</param>
+        /// <returns>Звіт за вказаний період</returns>
+        [HttpPost("generate-report")]
+        public async Task<IActionResult> GenerateReport(GenerateReportDTO model)
         {
             var userId = TryGetUserId();
-            if (userId == null) return RedirectToAction("Login", "Account");
+            if (userId == null) return Unauthorized();
 
             var receipts = await _context.Reciepts
                 .Include(r => r.Products)
                 .Where(r => r.User.Id == userId &&
-                            r.TimeStamp >= startDate &&
-                            r.TimeStamp <= endDate.AddDays(1))
+                            r.TimeStamp >= model.StartDate &&
+                            r.TimeStamp <= model.EndDate.AddDays(1))
                 .ToListAsync();
 
             var ops = await _context.FinancialOperations
                 .Where(f => f.User.Id == userId &&
-                            f.TimeStamp >= startDate &&
-                            f.TimeStamp <= endDate.AddDays(1))
+                            f.TimeStamp >= model.StartDate &&
+                            f.TimeStamp <= model.EndDate.AddDays(1))
                 .ToListAsync();
 
             decimal cashSales = receipts
@@ -100,8 +100,8 @@ namespace BusinessFinancialAccounting.Controllers
             var report = new Report
             {
                 UserId = userId.Value,
-                StartDate = startDate,
-                EndDate = endDate,
+                StartDate = model.StartDate,
+                EndDate = model.EndDate,
                 CashSales = cashSales,
                 CardSales = cardSales,
                 CashWithdrawals = cashWithdrawals,
@@ -116,7 +116,7 @@ namespace BusinessFinancialAccounting.Controllers
             _context.Reports.Add(report);
             await _context.SaveChangesAsync();
 
-            return RedirectToAction("ViewReport", new { id = report.Id });
+            return Ok(new { report });
         }
 
         /// <summary>
@@ -124,6 +124,7 @@ namespace BusinessFinancialAccounting.Controllers
         /// </summary>
         /// <param name="id">ID звіту.</param>
         /// <returns>Представлення звіту з деталями отриманих чеків.</returns>
+        [HttpGet("view-report/{id}")]
         public async Task<IActionResult> ViewReport(int id)
         {
             var report = await _context.Reports
@@ -140,16 +141,16 @@ namespace BusinessFinancialAccounting.Controllers
                 .OrderBy(r => r.TimeStamp)
                 .ToListAsync();
 
-            ViewBag.Receipts = receipts;
-            return View(report);
+            return Ok( new { report, receipts });
         }
 
         /// <summary>
-        /// Повертає часткове представлення з деталями чеку.
+        /// Отримання деталей чеку за його ID.
         /// </summary>
         /// <param name="receiptId">ID чеку.</param>
-        /// <returns>Часткове представлення _ReceiptDetails або NotFound.</returns>
-        public async Task<IActionResult> GetReceiptDetails(int receiptId)
+        /// <returns>Інформація про чек</returns>
+        [HttpGet("get-reciept-details")]
+        public async Task<IActionResult> GetReceiptDetails([FromQuery]int receiptId)
         {
             var receipt = await _context.Reciepts
                 .Include(r => r.Products)
@@ -157,24 +158,7 @@ namespace BusinessFinancialAccounting.Controllers
 
             if (receipt == null) return NotFound();
 
-            return PartialView("_ReceiptDetails", receipt);
-        }
-
-        /// <summary>
-        /// Показує список усіх звітів користувача.
-        /// </summary>
-        /// <returns>Представлення зі списком звітів.</returns>
-        public async Task<IActionResult> ListReports()
-        {
-            var userId = TryGetUserId();
-            if (userId == null) return RedirectToAction("Login", "Account");
-
-            var reports = await _context.Reports
-                .Where(r => r.UserId == userId)
-                .OrderByDescending(r => r.StartDate)
-                .ToListAsync();
-
-            return View(reports);
+            return Ok(new { receipt });
         }
 
         /// <summary>
@@ -182,11 +166,11 @@ namespace BusinessFinancialAccounting.Controllers
         /// </summary>
         /// <param name="id">ID звіту для перегенерації.</param>
         /// <returns>Redirect на головну сторінку звітів після оновлення.</returns>
-        [HttpPost]
+        [HttpPost("regenerate-report/{id}")]
         public async Task<IActionResult> RegenerateReport(int id)
         {
             var userId = TryGetUserId();
-            if (userId == null) return RedirectToAction("Login", "Account");
+            if (userId == null) return Unauthorized();
 
             var report = await _context.Reports.FirstOrDefaultAsync(r => r.Id == id && r.UserId == userId);
             if (report == null) return NotFound();
@@ -216,10 +200,9 @@ namespace BusinessFinancialAccounting.Controllers
 
             await _context.SaveChangesAsync();
 
-            TempData["AlertMsg"] = $"Звіт #{id} переформовано";
-            TempData["AlertType"] = "success";
+            string message = $"Звіт #{id} перегенеровано";
 
-            return RedirectToAction("Index");
+            return Ok(new { message });
         }
 
         /// <summary>
@@ -227,11 +210,11 @@ namespace BusinessFinancialAccounting.Controllers
         /// </summary>
         /// <param name="id">ID звіту для видалення.</param>
         /// <returns>Redirect на головну сторінку звітів після видалення.</returns>
-        [HttpPost]
+        [HttpPost("delete-report/{id}")]
         public async Task<IActionResult> DeleteReport(int id)
         {
             var userId = TryGetUserId();
-            if (userId == null) return RedirectToAction("Login", "Account");
+            if (userId == null) return Unauthorized();
 
             var report = await _context.Reports.FirstOrDefaultAsync(r => r.Id == id && r.UserId == userId);
             if (report == null) return NotFound();
@@ -239,10 +222,9 @@ namespace BusinessFinancialAccounting.Controllers
             _context.Reports.Remove(report);
             await _context.SaveChangesAsync();
 
-            TempData["AlertMsg"] = $"Звіт #{id} видалено";
-            TempData["AlertType"] = "success";
+            string message = $"Звіт #{id} видалено";
 
-            return RedirectToAction("Index");
+            return Ok(new { message });
         }
     }
 }
