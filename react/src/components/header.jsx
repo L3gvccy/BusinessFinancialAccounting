@@ -31,8 +31,20 @@ export default function Header() {
           Logo
         </Link>
 
-        <div className="collapse navbar-collapse">
-          <ul className="navbar-nav me-auto">
+        <button
+          className="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarSupportedContent"
+          aria-controls="navbarSupportedContent"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span className="navbar-toggler-icon"></span>
+        </button>
+
+        <div className="collapse navbar-collapse" id="navbarSupportedContent">
+          <ul className="navbar-nav me-auto mb-2 mb-lg-0">
             <li>
               <Link className="nav-link" to="/">
                 Головна
@@ -65,9 +77,9 @@ export default function Header() {
             )}
           </ul>
 
-          <ul className="navbar-nav">
+          <ul className="navbar-nav ms-auto">
             {user ? (
-              <div className="d-flex align-items-center">
+              <div className="d-flex align-items-center flex-wrap">
                 <span className="navbar-text me-2">
                   Привіт, {user.username}
                 </span>
@@ -75,7 +87,7 @@ export default function Header() {
                   Профіль
                 </Link>
                 <Link
-                  className="btn btn-outline-danger btn-sm me-2"
+                  className="btn btn-outline-danger btn-sm"
                   to="/"
                   onClick={onClickLogout}
                 >
