@@ -1,0 +1,190 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Condensed:ital,wght@0,100..900;1,100..900&display=swap');
+
+* {
+    font-family: 'Roboto Condensed', sans-serif;
+}
+
+.balance-wrapper {
+    transition: all 0.6s ease;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    margin-bottom: 24px;
+    padding: 16px;
+    color: #EFFFFB;
+    border-radius: 16px;
+}
+
+.balance-inner-card {
+    transition: all 0.6s ease;
+    display: flex;
+    flex-direction: column;
+    padding: 16px;
+    border-radius: 8px;
+    width: 50%;
+}
+
+.balance-wrapper.card-wrap {
+    background-color: #4F98CA;
+}
+
+.balance-wrapper.cash {
+    background-color: #50D890;
+}
+
+.balance-inner-card.card-inner {
+    background-color: #3074A1;
+}
+
+.balance-inner-card.cash {
+    background: #26AB64;
+}
+
+.balance-amount {
+    font-size: 48px;
+    font-weight: 300;
+    margin-top: 8px;
+}
+
+.balance-img {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    width: 50%;
+    display: block;
+    height: 100%;
+}
+
+.balance-img img {
+    display: block;
+    height: 198px;
+    width: auto;
+    margin: 0 auto;
+}
+
+.operation-btn {
+    transition: all 0.6s ease;
+    background-color: #EFFFFB;
+    color: #333333;
+    border: none;
+    border-radius: 8px;
+    padding: 4px 32px;
+    margin-top: 16px;
+    margin-right: 8px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.operation-btn:hover {
+    background-color: #D4F1F4;
+}
+
+.balance-btn {
+    transition: all 0.6s ease;
+    background-color: #EFFFFB;
+    color: #333333;
+    border: 2px solid ;
+    border-radius: 8px;
+    padding: 16px 48px;
+    margin-right: 8px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.balance-btn-cash {
+    color: #50D890;
+    border-color: #50D890;
+}
+
+.balance-btn-card {
+    color: #4F98CA;
+    border-color: #4F98CA;
+}
+
+.balance-btn.cash-active {
+    background-color: #50D890;
+    color: #EFFFFB;
+}
+
+.balance-btn.card-active {
+    background-color: #4F98CA;
+    color: #EFFFFB;
+}
+
+.balance-title {
+    overflow: hidden;
+    height: 1.5lh;
+    position: relative;
+}
+.balance-amount {
+  overflow: hidden;
+  height: 1lh;
+  position: relative;
+}
+
+.slide-text {
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.slide-text h2,
+.slide-text p {
+    height: 1lh;
+  margin: 0;
+}
+
+.slide-text.show-cash {
+  transform: translateY(0);
+}
+
+.slide-text.show-card {
+  transform: translateY(-50%);
+}
+
+.transaction-modal {
+    position: relative;
+    pointer-events: auto;
+    color: #EFFFFB;
+    border-radius: 16px;
+}
+
+.transaction-modal.cash {
+    background-color: #50D890;
+}
+
+.transaction-modal.card {
+    background-color: #4F98CA;
+}
+
+.transaction-modal-close {
+    z-index: 99999;
+    align-items: center;
+    font-size: 12px;
+    width: 38px;
+    border-radius: 24px;
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: #EFFFFB;
+    cursor: pointer;
+}
+
+.transaction-modal-close:hover {
+    cursor: pointer;
+}
+
+.transaction-submit-btn {
+    width: 100%;
+    padding: 8px;
+    border: none;
+    color: #EFFFFB;
+    border-radius: 4px;
+}
+
+.transaction-submit-btn.cash {
+    background-color: #26AB64;
+}
+.transaction-submit-btn.card {
+    background-color: #3074A1;
+}

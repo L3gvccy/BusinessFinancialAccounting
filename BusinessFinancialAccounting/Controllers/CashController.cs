@@ -48,24 +48,6 @@ namespace BusinessFinancialAccounting.Controllers
         }
 
         /// <summary>
-        /// Повертає часткове представлення для введення фінансової операції.
-        /// </summary>
-        /// <param name="accountType">Тип рахунку: "cash" або "card".</param>
-        /// <param name="actionType">Тип дії: "withdraw" або "deposit".</param>
-        /// <returns>Часткове представлення з формою введення суми операції.</returns>
-        [HttpGet]
-        public IActionResult TransactionForm(string accountType, string actionType)
-        {
-            var model = new TransactionViewModel
-            {
-                AccountType = accountType,
-                ActionType = actionType
-            };
-
-            return PartialView("_TransactionForm", model);
-        }
-
-        /// <summary>
         /// Обробляє фінансову операцію користувача: внесення або видачу коштів.
         /// </summary>
         /// <param name="model">Модель з даними операції.</param>
@@ -76,7 +58,7 @@ namespace BusinessFinancialAccounting.Controllers
         public IActionResult TransactionForm(TransactionDTO model)
         {
             var userIdStr = HttpContext.Session.GetString("UserId");
-            if (userIdStr == null) return RedirectToAction("Login", "Account");
+            if (userIdStr == null) return Unauthorized();
 
             int userId = int.Parse(userIdStr);
             var cashRegister = _context.CashRegisters.FirstOrDefault(c => c.User.Id == userId);

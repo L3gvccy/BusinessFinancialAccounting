@@ -11,6 +11,8 @@ import Products from "./pages/products.jsx";
 import Sale from "./pages/sale.jsx";
 import Reports from "./pages/reports.jsx";
 import ViewReport from "./pages/view-report.jsx";
+import CashRegisterV2 from "./pages/cash-register-v2.jsx";
+import "./App.css";
 
 function App() {
   return (
@@ -23,6 +25,7 @@ function App() {
           <Route path="/login" element={<Login />}></Route>
           <Route path="/profile" element={<Profile />}></Route>
           <Route path="/cash" element={<CashRegister />}/>
+          <Route path="/cash_v2" element={<CashRegisterV2 />}/>
           <Route path="/products" element={<Products />}/>
           <Route path="/sale" element={<Sale />} />
           <Route path="/reports" element={<Reports />} />
