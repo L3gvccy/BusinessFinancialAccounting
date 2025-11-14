@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { NavLink, Link } from "react-router-dom";
 
 import { showAlert } from "../utils/show-alert";
 
@@ -27,9 +27,9 @@ export default function Header() {
   return (
     <nav className="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
       <div className="container">
-        <Link className="navbar-brand fw-bold" to="/">
+        <NavLink className="navbar-brand fw-bold" to="/">
           Logo
-        </Link>
+        </NavLink>
 
         <button
           className="navbar-toggler"
@@ -46,32 +46,32 @@ export default function Header() {
         <div className="collapse navbar-collapse" id="navbarSupportedContent">
           <ul className="navbar-nav me-auto mb-2 mb-lg-0">
             <li>
-              <Link className="nav-link" to="/">
+              <NavLink className={({ isActive }) => `nav-link ${isActive ? "text-primary fw-bold" : ""}`} to="/">
                 Головна
-              </Link>
+              </NavLink>
             </li>
 
             {user && (
               <>
                 <li>
-                  <Link className="nav-link" to="/cash">
+                  <NavLink className={({ isActive }) => `nav-link ${isActive ? "text-primary fw-bold" : ""}`} to="/cash">
                     Каса
-                  </Link>
+                  </NavLink>
                 </li>
                 <li>
-                  <Link className="nav-link" to="/products">
+                  <NavLink className={({ isActive }) => `nav-link ${isActive ? "text-primary fw-bold" : ""}`} to="/products">
                     Товари
-                  </Link>
+                  </NavLink>
                 </li>
                 <li>
-                  <Link className="nav-link" to="/sale">
+                  <NavLink className={({ isActive }) => `nav-link ${isActive ? "text-primary fw-bold" : ""}`} to="/sale">
                     Продаж
-                  </Link>
+                  </NavLink>
                 </li>
                 <li>
-                  <Link className="nav-link" to="/reports">
+                  <NavLink className={({ isActive }) => `nav-link ${isActive ? "text-primary fw-bold" : ""}`} to="/reports">
                     Звіти
-                  </Link>
+                  </NavLink>
                 </li>
               </>
             )}
