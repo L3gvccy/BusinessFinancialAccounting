@@ -28,7 +28,7 @@ namespace BusinessFinancialAccounting.Controllers
         /// Обробляє реєстрацію нового користувача.
         /// </summary>
         /// <param name="model">DTO реєстрації</param>
-        /// <returns>Перехід на сторінку логіну</returns>
+        /// <returns>Повідомлення про успіх чи помилку при виконанні запиту</returns>
         [HttpPost("register")]
         public IActionResult Register(RegisterDTO model)
         {
@@ -67,7 +67,7 @@ namespace BusinessFinancialAccounting.Controllers
         /// Обробляє вхід користувача.
         /// </summary>
         /// <param name="model">DTO логіну</param>
-        /// <returns>Перехід на головну сторінку в разі успішної автентифікації</returns>
+        /// <returns>Повідомлення про успіх чи помилку при виконанні запиту</returns>
         [HttpPost("login")]
         public IActionResult Login([FromBody] LoginDTO model)
         {
@@ -92,7 +92,7 @@ namespace BusinessFinancialAccounting.Controllers
         /// <summary>
         /// Обробляє вихід користувача з системи.
         /// </summary>
-        /// <returns>Перехід на головну сторінку</returns>
+        /// <returns>Повідомлення про успіх при виконанні запиту</returns>
         [HttpPost("logout")]
         public IActionResult Logout()
         {
@@ -100,7 +100,11 @@ namespace BusinessFinancialAccounting.Controllers
             return Ok(new { alertMsg = "Ви успішно вийши з акаунуту!", alertType = "success" });
         }
 
-
+        /// <summary>
+        /// Вхід через зовнішнього провайдера
+        /// </summary>
+        /// <param name="provider">Провайдер для OAUTH-2</param>
+        /// <returns>Виклик фкнкції обробки автентифікація</returns>
         [HttpGet("external-login")]
         public IActionResult ExternalLogin(string provider)
         {
@@ -109,6 +113,12 @@ namespace BusinessFinancialAccounting.Controllers
 
             return Challenge(properties, provider);
         }
+
+        /// <summary>
+        /// Автентифікація через зовнішнього провайдера
+        /// </summary>
+        /// <param name="provider">Провайдер для OAUTH-2</param>
+        /// <returns>Редірект на головну сторінку з кодом повідомлення</returns>
         [HttpGet("external-login-callback")]
         public async Task<IActionResult> ExternalLoginCallback(string provider = "Google")
         {
@@ -180,7 +190,10 @@ namespace BusinessFinancialAccounting.Controllers
             return Redirect("http://localhost:5173/");
         }
 
-
+        /// <summary>
+        /// Отримує профіль користувача
+        /// </summary>
+        /// <returns>Дані користувача</returns>
         [HttpGet("profile")]
         public async Task<IActionResult> GetProfile()
         {
@@ -206,6 +219,11 @@ namespace BusinessFinancialAccounting.Controllers
             return Ok(dto);
         }
 
+        /// <summary>
+        /// Оновлює дані профілю користувача
+        /// </summary>
+        /// <param name="model">DTO для зміни даних користувача</param>
+        /// <returns>Повідомлення про успіх чи помилку при виконанні запиту</returns>
         [HttpPut("profile")]
         public async Task<IActionResult> UpdateProfile([FromBody] UpdateProfileDTO model)
         {
@@ -238,6 +256,11 @@ namespace BusinessFinancialAccounting.Controllers
             return Ok(new { message = "Дані профілю успішно оновлено" });
         }
 
+        /// <summary>
+        /// Змінює пароль користувача
+        /// </summary>
+        /// <param name="model">DTO для зміни паролю</param>
+        /// <returns>Повідомлення про успіх чи помилку при виконанні запиту</returns>
         [HttpPost("change-password")]
         public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDTO model)
         {
@@ -262,6 +285,10 @@ namespace BusinessFinancialAccounting.Controllers
             return Ok(new { message = "Пароль успішно змінено" });
         }
 
+        /// <summary>
+        /// Відв’язує обліковий запис Google від профілю користувача
+        /// </summary>
+        /// <returns>Повідомлення про успіх чи помилку виконання запиту</returns>
         [HttpPost("unlink-google")]
         public async Task<IActionResult> UnlinkGoogleApi()
         {
@@ -284,6 +311,10 @@ namespace BusinessFinancialAccounting.Controllers
             return Ok(new { message = "Google авторизацію відв’язано" });
         }
 
+        /// <summary>
+        /// Приймає запит на зв'язування облікового запису Google
+        /// </summary>
+        /// <returns>Викли функції обробки прив'язки облікового запису Google</returns>
         [HttpGet("link-google")]
         public IActionResult LinkGoogle()
         {
@@ -294,6 +325,10 @@ namespace BusinessFinancialAccounting.Controllers
             return Challenge(properties, "Google");
         }
 
+        /// <summary>
+        /// Обробляє зворотній виклик для зв'язування облікового запису Google
+        /// </summary>
+        /// <returns>Редірект на сторінку профілю з кодом повідомлення</returns>
         [HttpGet("link-google-callback")]
         public async Task<IActionResult> LinkGoogleCallback()
         {

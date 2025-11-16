@@ -24,7 +24,7 @@ namespace BusinessFinancialAccounting.Controllers
         /// <summary>
         /// Показує баланс користувача за рахунками готівки та картки.
         /// </summary>
-        /// <returns>Представлення з інформацією про баланс користувача.</returns>
+        /// <returns>Інформацієя про баланс користувача.</returns>
         [HttpGet("cashregister")]
         public IActionResult CashBalance()
         {
@@ -52,7 +52,7 @@ namespace BusinessFinancialAccounting.Controllers
         /// </summary>
         /// <param name="model">Модель з даними операції.</param>
         /// <returns>
-        /// Часткове представлення з повідомленням про помилку, якщо сума перевищує баланс, або JSON-підтвердження успіху операції.
+        /// Повідомлення про успішність операції або помилку, якщо коштів недостатньо.
         /// </returns>
         [HttpPost("transaction")]
         public IActionResult TransactionForm(TransactionDTO model)

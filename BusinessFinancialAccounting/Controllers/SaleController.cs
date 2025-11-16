@@ -22,25 +22,6 @@ namespace BusinessFinancialAccounting.Controllers
         }
 
         /// <summary>
-        /// Отримує словник товарів та їх кількості з кошика сесії.
-        /// </summary>
-        /// <returns>Словник productId -> quantity.</returns>
-        private Dictionary<int, decimal> GetCart()
-        {
-            var json = HttpContext.Session.GetString(CART_KEY);
-            if (string.IsNullOrWhiteSpace(json)) return new Dictionary<int, decimal>();
-            return JsonSerializer.Deserialize<Dictionary<int, decimal>>(json)
-                   ?? new Dictionary<int, decimal>();
-        }
-
-        /// <summary>
-        /// Зберігає словник товарів та їх кількості з кошика сесії.
-        /// </summary>
-        /// <returns>Словник productId -> quantity.</returns>
-        private void SaveCart(Dictionary<int, decimal> cart)
-            => HttpContext.Session.SetString(CART_KEY, JsonSerializer.Serialize(cart));
-
-        /// <summary>
         /// Спроба отримати ID користувача з сесії.
         /// </summary>
         /// <returns>ID користувача, або null, якщо користувач не авторизований.</returns>
@@ -51,50 +32,12 @@ namespace BusinessFinancialAccounting.Controllers
         }
 
         /// <summary>
-        /// Формує дані кошика: список товарів, кількість і загальну суму.
+        /// Додавання товару до кошику за кодом.
         /// </summary>
-        /// <param name="userId">ID користувача.</param>
-        /// <returns>Список з товарами, кількістю та загальною сумою</returns>
-        private async Task<(List<Product> products, Dictionary<int, decimal> qty, decimal total)>
-            BuildCartDataAsync(int userId)
-        {
-            var qty = GetCart();
-            var ids = qty.Keys.ToList();
-            var products = await _context.Products
-                .Include(p => p.User)
-                .Where(p => p.User.Id == userId && ids.Contains(p.Id))
-                .ToListAsync();
-
-            decimal total = 0m;
-            foreach (var p in products)
-            {
-                var q = qty.TryGetValue(p.Id, out var v) ? v : 0m;
-                total += p.Price * q;
-            }
-            total = Math.Round(total, 2);
-            return (products, qty, total);
-        }
-
-        /// <summary>
-        /// Показує сторінку продажу та відображає кошик.
-        /// </summary>
-        /// <returns>Представлення з товарами у кошику та загальною сумою.</returns>
-        public async Task<IActionResult> Sale()
-        {
-            var userId = TryGetUserId();
-            if (userId == null) return RedirectToAction("Login", "Account");
-
-            var (products, qty, total) = await BuildCartDataAsync(userId.Value);
-            ViewBag.Qty = qty;
-            ViewBag.Total = total;
-            return View(products);
-        }
-
-        /// <summary>
-        /// Додає товар у кошик за його кодом.
-        /// </summary>
-        /// <param name="code">Код товару.</param>
-        /// <returns>Redirect на сторінку продажу.</returns>
+        /// <param name="model">DTO для додавання товару за кодом</param>
+        /// <returns>
+        /// Повертає інформацію про доданий товар, повідомлення та максимальну кількість, або помилку, якщо товар не знайдено чи недостатньо залишку.
+        /// </returns>
         [HttpPost("add-by-code")]
         public async Task<IActionResult> AddByCode([FromBody] AddByCodeDTO model)
         {
@@ -129,14 +72,14 @@ namespace BusinessFinancialAccounting.Controllers
         /// Обробка зміни кількості товару
         /// </summary>
         /// <param name="model">Модель для зміни кількості товару в кошику</param>
-        /// <returns>Статус обробки запиту</returns>
+        /// <returns>
+        /// Максимальну кількість товару, або помилку, якщо недостатньо залишку.
+        /// </returns>
         [HttpPost("change-qty")]
         public async Task<IActionResult> ChangeQty([FromBody] ChangeQuantityDTO model)
         {
             var userId = TryGetUserId();
             if (userId == null) return Unauthorized();
-
-            var cart = GetCart();
 
             var product = await _context.Products
                 .Include(p => p.User)
@@ -156,7 +99,9 @@ namespace BusinessFinancialAccounting.Controllers
         /// Виконує оплату товарів у кошику.
         /// </summary>
         /// <param name="model">DTO для передачі товарів в кошишку та методу оплати</param>
-        /// <returns>Redirect на сторінку продажу.</returns>
+        /// <returns>
+        /// Збережену квитанцію з інформацією про оплату, або помилку, якщо виникла проблема під час оплати.
+        /// </returns>
         [HttpPost("pay")]
         public async Task<IActionResult> Pay([FromBody] PayRequestDTO model)
         {

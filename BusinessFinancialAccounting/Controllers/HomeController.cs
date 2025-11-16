@@ -24,6 +24,12 @@ namespace BusinessFinancialAccounting.Controllers
             return Ok(new { message = "App works!" });
         }
 
+        /// <summary>
+        /// Отримує інформацію про поточного автентифікованого користувача.
+        /// </summary>
+        /// <returns>
+        /// Статус автентифікації та дані користувача, якщо він автентифікований.
+        /// </returns>
         [HttpGet("me")]
         public IActionResult GetUser()
         {
