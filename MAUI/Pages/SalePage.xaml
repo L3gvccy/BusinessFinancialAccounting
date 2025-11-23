@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="MAUI.Pages.SalePage"
+             Title="Продаж">
+
+    <VerticalStackLayout Padding="20" Spacing="20">
+
+        <!-- Код товару -->
+        <HorizontalStackLayout Spacing="10">
+            <Entry x:Name="CodeEntry"
+                   Placeholder="Код товару"
+                   WidthRequest="200"
+                   Keyboard="Numeric"/>
+            <Button Text="Додати"
+                    Clicked="OnAddClicked"/>
+        </HorizontalStackLayout>
+
+        <!-- Кошик -->
+        <CollectionView x:Name="CartCollectionView"
+                ItemsSource="{Binding Cart}"
+                SelectionMode="None">
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <Border Stroke="#ccc" StrokeShape="RoundRectangle 8" StrokeThickness="1" Padding="10" Margin="0,0,0,10" Shadow="2">
+                        <VerticalStackLayout Spacing="5">
+
+                            <!-- Назва товару -->
+                            <Label Text="{Binding Name}" FontSize="18" FontAttributes="Bold"/>
+
+                            <!-- Горизонтальна панель з кількістю, одиницями і ціною -->
+                            <HorizontalStackLayout Spacing="15" VerticalOptions="Center">
+                                <!-- Кількість -->
+                                <Entry WidthRequest="80"
+                               Keyboard="Numeric"
+                               Text="{Binding Quantity}"
+                               TextChanged="OnQtyChanged"
+                               HorizontalTextAlignment="Center"/>
+
+                                <!-- Одиниці виміру -->
+                                <Label Text="{Binding Units}" FontSize="16" VerticalOptions="Center"/>
+
+                                <!-- Ціна -->
+                                <Label Text="{Binding Price, StringFormat='{}{0} грн'}" FontSize="16" FontAttributes="Bold" VerticalOptions="Center"/>
+                            </HorizontalStackLayout>
+
+                        </VerticalStackLayout>
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+
+        <!-- Загальна сума -->
+        <HorizontalStackLayout HorizontalOptions="End" Margin="0,5,0,0">
+            <Label Text="Загальна сума: " FontSize="18" FontAttributes="Bold"/>
+            <Label Text="{Binding Total, StringFormat=' {0:F2} грн'}" FontSize="18" FontAttributes="Bold"/>
+        </HorizontalStackLayout>
+
+        <!-- Кнопки оплати -->
+        <HorizontalStackLayout HorizontalOptions="End" Spacing="15">
+            <Button Text="Готівка"
+                    BackgroundColor="#26AB64"
+                    TextColor="White"
+                    CornerRadius="10"
+                    WidthRequest="120"
+                    Clicked="OnPayCash"/>
+
+            <Button Text="Картка"
+                    BackgroundColor="#3074A1"
+                    TextColor="White"
+                    CornerRadius="10"
+                    WidthRequest="120"
+                    Clicked="OnPayCard"/>
+        </HorizontalStackLayout>
+
+    </VerticalStackLayout>
+</ContentPage>
+

@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:mc="clr-namespace:Microcharts.Maui;assembly=Microcharts.Maui"
+    x:Class="MAUI.Pages.ReportsDetailPage"
+    Title="Деталі звіту">
+    <AbsoluteLayout>
+        <ScrollView AbsoluteLayout.LayoutBounds="0,0,1,1" AbsoluteLayout.LayoutFlags="All">
+            <VerticalStackLayout Padding="15" Spacing="15">
+
+                <!-- Інформація про звіт -->
+                <Label Text="{Binding Report.StartDate, StringFormat='Початок: {0:dd.MM.yyyy}'}" FontAttributes="Bold"/>
+                <Label Text="{Binding Report.EndDate, StringFormat='Кінець: {0:dd.MM.yyyy}'}" FontAttributes="Bold"/>
+                <Label Text="{Binding Report.CashDeposits, StringFormat='Внески готівкою: {0:F2} грн'}"/>
+                <Label Text="{Binding Report.CardDeposits, StringFormat='Внески карткою: {0:F2} грн'}"/>
+                <Label Text="{Binding Report.CashSales, StringFormat='Вилучення готівкою: {0:F2} грн'}"/>
+                <Label Text="{Binding Report.CardSales, StringFormat='Вилучення карткою: {0:F2} грн'}"/>
+                <Label Text="{Binding Report.CashProfit, StringFormat='Прибуток готівкою: {0:F2} грн'}"/>
+                <Label Text="{Binding Report.CardProfit, StringFormat='Прибуток карткою: {0:F2} грн'}"/>
+                <Label Text="{Binding Report.Tax, StringFormat='Податок: {0:F2} грн'}"/>
+
+                <!-- Графік -->
+                <Label Text="Графік продажів по товарах" FontAttributes="Bold" Margin="0,10,0,5"/>
+                <mc:ChartView x:Name="SalesChart" HeightRequest="300"/>
+
+                <!-- Список чеків -->
+                <Label Text="Список чеків" FontAttributes="Bold" Margin="0,10,0,5"/>
+                <CollectionView ItemsSource="{Binding Receipts}" HeightRequest="300">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <Border Stroke="#CCCCCC" StrokeThickness="1" Padding="10" Margin="0,0,0,10">
+                                <VerticalStackLayout>
+                                    <Label Text="{Binding TimeStamp, StringFormat='{}{0:dd.MM.yyyy HH:mm}'}"/>
+                                    <Label Text="{Binding PaymentMethod}"/>
+                                    <Label Text="{Binding Total, StringFormat='Загальна сума: {0:F2} грн'}"/>
+                                    <CollectionView ItemsSource="{Binding Products}">
+                                        <CollectionView.ItemTemplate>
+                                            <DataTemplate>
+                                                <HorizontalStackLayout Spacing="10">
+                                                    <Label Text="{Binding Name}" />
+                                                    <Label Text="{Binding Quantity, StringFormat='{0:F2}'}"/>
+                                                    <Label Text="{Binding Units}" />
+                                                    <Label Text="{Binding Price, StringFormat='{0:F2} грн'}"/>
+                                                    <Label Text="{Binding TotalPrice, StringFormat='{0:F2} грн'}"/>
+                                                </HorizontalStackLayout>
+                                            </DataTemplate>
+                                        </CollectionView.ItemTemplate>
+                                    </CollectionView>
+                                </VerticalStackLayout>
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <Grid x:Name="LoaderOverlay"
+            BackgroundColor="#80000000"
+            IsVisible="False"
+            AbsoluteLayout.LayoutBounds="0,0,1,1"
+            AbsoluteLayout.LayoutFlags="All">
+            <ActivityIndicator IsRunning="True"
+                       Color="{StaticResource PrimaryDark}"
+                       WidthRequest="60"
+                       HeightRequest="60"
+                       VerticalOptions="Center"
+                       HorizontalOptions="Center"/>
+        </Grid>
+    </AbsoluteLayout>
+    
+</ContentPage>
+

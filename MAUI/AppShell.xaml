@@ -4,11 +4,58 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:local="clr-namespace:MAUI"
-    Title="MAUI">
+    xmlns:pages="clr-namespace:MAUI.Pages"
+    Title="MAUI"
+    FlyoutBehavior="Disabled">
 
+    <!-- === ДО ВХОДУ (Login/Register) === -->
     <ShellContent
-        Title="Home"
-        ContentTemplate="{DataTemplate local:MainPage}"
-        Route="MainPage" />
+        Title="Вхід"
+        Route="LoginPage"
+        ContentTemplate="{DataTemplate pages:LoginPage}" />
+
+    <ShellContent 
+        Title="Реєстрація"
+        Route="RegisterPage"
+        ContentTemplate="{DataTemplate pages:RegisterPage}" />
+
+    <!-- === ПІСЛЯ ВХОДУ === -->
+    <TabBar Route="main">
+        <ShellContent 
+            Title="Головна"
+            Icon="home.png"
+            Route="home"
+            ContentTemplate="{DataTemplate pages:HomePage}" />
+        <ShellContent
+            Title="Баланс"
+            Icon="cash.png"
+            Route="cash"
+            ContentTemplate="{DataTemplate pages:CashPage}" />
+        <ShellContent
+            Title="Товари"
+            Icon="products.png"
+            Route="products"
+            ContentTemplate="{DataTemplate pages:ProductsPage}" />
+        <ShellContent
+            Title="Продаж"
+            Icon="sale.png"
+            Route="sale"
+            ContentTemplate="{DataTemplate pages:SalePage}" />
+        <ShellContent
+            Title="Звіти"
+            Icon="report.png"
+            Route="reports"
+            ContentTemplate="{DataTemplate pages:ReportsPage}" />
+    </TabBar>
+
+    <Shell.ToolbarItems>
+        <ToolbarItem
+            x:Name="ProfileButton"
+            Text="Профіль"
+            IconImageSource="user.png"
+            Order="Primary"
+            Priority="0"
+            Clicked="OnProfileClicked" />
+    </Shell.ToolbarItems>
 
 </Shell>
