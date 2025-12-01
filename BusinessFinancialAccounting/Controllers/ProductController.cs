@@ -1,7 +1,11 @@
 ﻿using BusinessFinancialAccounting.Models;
 using BusinessFinancialAccounting.Models.DTO;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Diagnostics; 
+using OpenTelemetry.Trace; 
+
 
 namespace BusinessFinancialAccounting.Controllers
 {
@@ -14,9 +18,51 @@ namespace BusinessFinancialAccounting.Controllers
     {
         private readonly AppDbContext _context;
 
+        private static readonly ActivitySource ActivitySource = new ActivitySource("BusinessFinancialAccounting.ProductController");
+
         public ProductController(AppDbContext context)
         {
             _context = context;
+        }
+
+        /// <summary>
+        /// ВІДКРИТИЙ ендпоінт спеціально для load-тесту (JMeter).
+        /// Повертає частину списку товарів без авторизації.
+        /// </summary>
+        [HttpGet("load-test")]
+        [AllowAnonymous]
+        public async Task<ActionResult<IEnumerable<ProductDTO>>> LoadTest(CancellationToken ct)
+        {
+            using var activity = ActivitySource.StartActivity("LoadTest SQL Query", ActivityKind.Internal);
+
+            activity?.SetTag("component", "load-test");
+            activity?.SetTag("db.system", "mssql");
+            activity?.SetTag("db.operation", "SELECT");
+            activity?.SetTag("loadtest.rows", 100);
+
+            var stopwatch = Stopwatch.StartNew();
+
+            var products = await _context.Products
+                .AsNoTracking()
+                .OrderBy(p => p.Id)
+                .Take(100)
+                .Select(p => new ProductDTO
+                {
+                    Id = p.Id,
+                    Code = p.Code,
+                    Name = p.Name,
+                    Units = p.Units,
+                    Quantity = p.Quantity,
+                    Price = p.Price
+                })
+                .ToListAsync(ct);
+
+            stopwatch.Stop();
+
+            activity?.SetTag("db.duration_ms", stopwatch.ElapsedMilliseconds);
+            activity?.SetTag("db.result_count", products.Count);
+
+            return Ok(products);
         }
 
         /// <summary>
