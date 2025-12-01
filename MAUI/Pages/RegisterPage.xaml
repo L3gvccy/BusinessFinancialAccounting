@@ -1,0 +1,93 @@
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Class="MAUI.Pages.RegisterPage"
+    Title="Реєстрація">
+
+    <ScrollView>
+        <Grid>
+            <Grid VerticalOptions="Center" HorizontalOptions="Center">
+
+                <!-- Обмеження ширини -->
+                <VerticalStackLayout
+                    WidthRequest="{OnIdiom Phone=380, Tablet=420, Desktop=420}"
+                    Padding="20"
+                    Spacing="20">
+
+                    <Label 
+                        Text="Створення акаунту"
+                        FontSize="28"
+                        FontAttributes="Bold"
+                        HorizontalOptions="Center" />
+
+                    <!-- Username -->
+                    <Entry
+                        x:Name="UsernameEntry"
+                        Placeholder="Логін"
+                        HeightRequest="50" />
+
+                    <!-- Full Name -->
+                    <Entry
+                        x:Name="FullNameEntry"
+                        Placeholder="ПІБ"
+                        HeightRequest="50" />
+
+                    <!-- Password -->
+                    <Entry
+                        x:Name="PasswordEntry"
+                        Placeholder="Пароль"
+                        IsPassword="True"
+                        HeightRequest="50" />
+
+                    <!-- Phone -->
+                    <Entry
+                        x:Name="PhoneEntry"
+                        Placeholder="Номер телефону"
+                        Keyboard="Telephone"
+                        HeightRequest="50" />
+
+                    <!-- Email -->
+                    <Entry
+                        x:Name="EmailEntry"
+                        Placeholder="Email"
+                        Keyboard="Email"
+                        HeightRequest="50" />
+
+                    <!-- Cash balance -->
+                    <Entry
+                        x:Name="CashBalanceEntry"
+                        Placeholder="Баланс готівки"
+                        Keyboard="Numeric"
+                        HeightRequest="50" />
+
+                    <!-- Card balance -->
+                    <Entry
+                        x:Name="CardBalanceEntry"
+                        Placeholder="Баланс картки"
+                        Keyboard="Numeric"
+                        HeightRequest="50" />
+
+                    <!-- Register button -->
+                    <Button
+                        Text="Зареєструватися"
+                        Clicked="OnRegisterClicked"
+                        HeightRequest="52"
+                        CornerRadius="12" />
+
+                    <!-- Back to login: прозора кнопка + обводка -->
+                    <Button
+                        Text="Увійти"
+                        Clicked="OnLoginClicked"
+                        BackgroundColor="Transparent"
+                        BorderColor="{DynamicResource PrimaryDark}"
+                        TextColor="{DynamicResource Gray200}"
+                        BorderWidth="2"
+                        HeightRequest="52"
+                        CornerRadius="12" />
+
+                </VerticalStackLayout>
+            </Grid>
+        </Grid>
+    </ScrollView>
+
+</ContentPage>

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Class="MAUI.Pages.ProfilePage"
+    Title="Профіль">
+
+    <ScrollView>
+        <VerticalStackLayout
+            Padding="20"
+            Spacing="15"
+            WidthRequest="{OnIdiom Phone=380, Tablet=420, Desktop=420}"
+            HorizontalOptions="Center">
+
+            <Label Text="Профіль" FontSize="28" FontAttributes="Bold" HorizontalOptions="Center"/>
+
+            <!-- Full Name -->
+            <Entry x:Name="FullNameEntry" Placeholder="Повне ім'я" HeightRequest="50" />
+
+            <!-- Phone -->
+            <Entry x:Name="PhoneEntry" Placeholder="Телефон" HeightRequest="50" Keyboard="Telephone" />
+
+            <!-- Email -->
+            <Entry x:Name="EmailEntry" Placeholder="Email" HeightRequest="50" Keyboard="Email" />
+
+            <Button Text="Оновити профіль" Clicked="OnUpdateProfileClicked" HeightRequest="52" CornerRadius="12"/>
+
+            <BoxView HeightRequest="1" Color="Gray" Margin="0,10"/>
+
+            <Label Text="Змінити пароль" FontSize="20" FontAttributes="Bold" HorizontalOptions="Center"/>
+
+            <!-- Old password -->
+            <Entry x:Name="OldPasswordEntry" Placeholder="Старий пароль" IsPassword="True" HeightRequest="50"/>
+
+            <!-- New password -->
+            <Entry x:Name="NewPasswordEntry" Placeholder="Новий пароль" IsPassword="True" HeightRequest="50"/>
+
+            <Button Text="Змінити пароль" Clicked="OnChangePasswordClicked" HeightRequest="52" CornerRadius="12"/>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Class="MAUI.Pages.EditProductPage"
+    Title="Редагувати товар">
+
+    <ScrollView>
+        <VerticalStackLayout 
+            Padding="20" 
+            Spacing="15" 
+            WidthRequest="{OnIdiom Phone=380, Tablet=420, Desktop=640}">
+
+            <!-- Код товару -->
+            <Entry x:Name="CodeEntry" Placeholder="Код товару" Keyboard="Numeric" IsEnabled="False"/>
+
+            <!-- Назва -->
+            <Entry x:Name="NameEntry" Placeholder="Назва"/>
+
+            <!-- Одиниці виміру -->
+            <Picker x:Name="UnitsPicker" Title="Одиниці виміру">
+                <Picker.Items>
+                    <x:String>шт</x:String>
+                    <x:String>кг</x:String>
+                </Picker.Items>
+            </Picker>
+
+            <!-- Кількість -->
+            <Entry x:Name="QuantityEntry" Placeholder="Кількість" Keyboard="Numeric"/>
+
+            <!-- Ціна -->
+            <Entry x:Name="PriceEntry" Placeholder="Ціна" Keyboard="Numeric"/>
+
+            <!-- Зберегти -->
+            <Button 
+                Text="Зберегти" 
+                Clicked="OnSaveClicked" 
+                HeightRequest="50" 
+                CornerRadius="12"/>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

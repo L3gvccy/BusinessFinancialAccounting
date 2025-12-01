@@ -57,7 +57,9 @@ namespace BusinessFinancialAccounting.Controllers
         /// Генерує новий фінансовий звіт за вказаний період.
         /// </summary>
         /// <param name="model">DTO, що містить дату початку та кінця звітного періоду.</param>
-        /// <returns>Звіт за вказаний період</returns>
+        /// <returns>
+        /// Звіт з розрахованими фінансовими показниками за вказаний період.
+        /// </returns>
         [HttpPost("generate-report")]
         public async Task<IActionResult> GenerateReport(GenerateReportDTO model)
         {
@@ -120,10 +122,12 @@ namespace BusinessFinancialAccounting.Controllers
         }
 
         /// <summary>
-        /// Переглядає конкретний звіт користувача.
+        /// Отримання представлення звіту з деталями отриманих чеків за період звіту.
         /// </summary>
         /// <param name="id">ID звіту.</param>
-        /// <returns>Представлення звіту з деталями отриманих чеків.</returns>
+        /// <returns>
+        /// Звіт з деталями отриманих чеків за період звіту.
+        /// </returns>
         [HttpGet("view-report/{id}")]
         public async Task<IActionResult> ViewReport(int id)
         {
@@ -165,7 +169,9 @@ namespace BusinessFinancialAccounting.Controllers
         /// Перегенеровує існуючий звіт, оновлюючи дані за тим же періодом.
         /// </summary>
         /// <param name="id">ID звіту для перегенерації.</param>
-        /// <returns>Redirect на головну сторінку звітів після оновлення.</returns>
+        /// <returns>
+        /// Повідомлення про успішну перегенерацію звіту.
+        /// </returns>
         [HttpPost("regenerate-report/{id}")]
         public async Task<IActionResult> RegenerateReport(int id)
         {
@@ -209,7 +215,9 @@ namespace BusinessFinancialAccounting.Controllers
         /// Видаляє звіт користувача.
         /// </summary>
         /// <param name="id">ID звіту для видалення.</param>
-        /// <returns>Redirect на головну сторінку звітів після видалення.</returns>
+        /// <returns>
+        /// Повідомлення про успішне видалення звіту.
+        /// </returns>
         [HttpPost("delete-report/{id}")]
         public async Task<IActionResult> DeleteReport(int id)
         {

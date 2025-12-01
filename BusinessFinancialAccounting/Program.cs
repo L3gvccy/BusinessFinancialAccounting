@@ -2,6 +2,7 @@ using BusinessFinancialAccounting.Models;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.EntityFrameworkCore;
+using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -77,6 +78,13 @@ builder.Services.AddAuthentication(options =>
     options.CallbackPath = "/signin-google";
 });
 
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(options =>
+{
+    var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
+});
+
 var app = builder.Build();
 
 
@@ -95,7 +103,11 @@ app.UseSession();
 
 app.MapControllers();
 
-
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
 
 using (var scope = app.Services.CreateScope())
 {

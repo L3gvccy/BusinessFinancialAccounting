@@ -21,6 +21,7 @@ namespace BusinessFinancialAccounting.Controllers
         /// <summary>
         /// Показує баланс користувача за рахунками готівки та картки.
         /// </summary>
+        /// <returns>Інформацієя про баланс користувача.</returns>
         [HttpGet("cashregister")]
         public async Task<IActionResult> CashBalance()
         {
@@ -47,6 +48,10 @@ namespace BusinessFinancialAccounting.Controllers
         /// <summary>
         /// Обробляє фінансову операцію користувача: внесення або видачу коштів.
         /// </summary>
+        /// <param name="model">Модель з даними операції.</param>
+        /// <returns>
+        /// Повідомлення про успішність операції або помилку, якщо коштів недостатньо.
+        /// </returns>
         [HttpPost("transaction")]
         public async Task<IActionResult> TransactionForm([FromBody] TransactionDTO model)
         {

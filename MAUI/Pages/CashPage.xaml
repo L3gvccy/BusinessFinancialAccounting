@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Class="MAUI.Pages.CashPage"
+    Title="Баланс">
+
+    <AbsoluteLayout>
+        <ScrollView AbsoluteLayout.LayoutBounds="0,0,1,1" AbsoluteLayout.LayoutFlags="All">
+            <VerticalStackLayout Padding="20" Spacing="20" WidthRequest="{OnIdiom Phone=380, Tablet=420, Desktop=420}">
+
+                <!-- Баланс -->
+                <Label Text="Баланс користувача" FontSize="24" FontAttributes="Bold" HorizontalOptions="Center"/>
+
+                <Border
+            StrokeShape="RoundRectangle 12"
+            BackgroundColor="#26AB64"
+            StrokeThickness="0"
+            Padding="20">
+                    <VerticalStackLayout>
+                        <Label Text="Готівка" FontAttributes="Bold" FontSize="18" TextColor="White" HorizontalOptions="Center"/>
+                        <Label x:Name="CashBalanceLabel" Text="0 грн." FontSize="24" FontAttributes="Bold" TextColor="White" HorizontalOptions="Center"/>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Панель для картки -->
+                <Border
+            StrokeShape="RoundRectangle 12"
+            BackgroundColor="#3074A1"
+            StrokeThickness="0"
+            Padding="20">
+                    <VerticalStackLayout>
+                        <Label Text="Картка" FontAttributes="Bold" FontSize="18" TextColor="White" HorizontalOptions="Center"/>
+                        <Label x:Name="CardBalanceLabel" Text="0 грн." FontSize="24" FontAttributes="Bold" TextColor="White" HorizontalOptions="Center"/>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Форма транзакції -->
+                <Label Text="Фінансова операція" FontSize="20" FontAttributes="Bold" HorizontalOptions="Center"/>
+
+                <Picker x:Name="AccountTypePicker" Title="Тип рахунку">
+                    <Picker.Items>
+                        <x:String>Готівка</x:String>
+                        <x:String>Картка</x:String>
+                    </Picker.Items>
+                </Picker>
+
+                <Picker x:Name="ActionTypePicker" Title="Дія">
+                    <Picker.Items>
+                        <x:String>Внесення</x:String>
+                        <x:String>Видача</x:String>
+                    </Picker.Items>
+                </Picker>
+
+                <Entry x:Name="AmountEntry" Placeholder="Сума" Keyboard="Numeric"/>
+
+                <Button Text="Виконати операцію" Clicked="OnTransactionClicked" HeightRequest="50" CornerRadius="12"/>
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <Grid x:Name="LoaderOverlay"
+            BackgroundColor="#80000000"
+            IsVisible="False"
+            AbsoluteLayout.LayoutBounds="0,0,1,1"
+            AbsoluteLayout.LayoutFlags="All">
+            <ActivityIndicator IsRunning="True"
+                Color="{StaticResource PrimaryDark}"
+                WidthRequest="60"
+                HeightRequest="60"
+                VerticalOptions="Center"
+                HorizontalOptions="Center"/>
+        </Grid>
+    </AbsoluteLayout>
+</ContentPage>

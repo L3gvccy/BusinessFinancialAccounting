@@ -93,10 +93,12 @@ namespace BusinessFinancialAccounting.Controllers
         }
 
         /// <summary>
-        /// Повертає сторінку редагування товару за його ідентифікатором.
+        /// Редагує товар за його ідентифікатором.
         /// </summary>
         /// <param name="id">Ідентифікатор товару.</param>
-        /// <returns>Інформація про товар або NotFound, якщо товар не існує.</returns>
+        /// <returns>
+        /// Інформація про товар у форматі JSON або повідомлення про помилку, якщо товар не знайдено.
+        /// </returns>
         [HttpGet("edit/{id:int}")]
         public async Task<IActionResult> EditProduct(int id, CancellationToken ct)
         {

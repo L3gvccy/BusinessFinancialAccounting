@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="MAUI.Pages.ProductsPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    Title="Товари">
+
+    <AbsoluteLayout>
+        <ScrollView AbsoluteLayout.LayoutBounds="0,0,1,1" AbsoluteLayout.LayoutFlags="All">
+            <VerticalStackLayout Padding="20" Spacing="15" HorizontalOptions="Center" WidthRequest="{OnIdiom Phone=380, Tablet=420, Desktop=640}">
+
+                <!-- Заголовок -->
+                <Label
+            Text="Список товарів"
+            FontSize="28"
+            FontAttributes="Bold"
+            HorizontalOptions="Center"/>
+
+                <!-- Кнопка додавання товару -->
+                <Button
+            Text="Додати товар"
+            Clicked="OnAddProductClicked"
+            HorizontalOptions="Fill"
+            CornerRadius="8"
+            HeightRequest="40"/>
+
+                <!-- Список товарів -->
+                <CollectionView
+            x:Name="ProductsCollection"
+            SelectionMode="None"
+            ItemsLayout="VerticalList"
+            VerticalOptions="Start">
+
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <Border
+                        StrokeShape="RoundRectangle 8"
+                        StrokeThickness="1"
+                        Stroke="LightGray"
+                        Padding="10"
+                        Margin="0,5">
+
+                                <VerticalStackLayout Spacing="5">
+                                    <Label Text="{Binding Name}" FontSize="18" FontAttributes="Bold"/>
+                                    <Label Text="{Binding Code, StringFormat='Код: {0}'}"/>
+                                    <Label Text="{Binding Units, StringFormat='Одиниці: {0}'}"/>
+                                    <Label Text="{Binding Quantity, StringFormat='Кількість: {0:N2}'}"/>
+                                    <Label Text="{Binding Price, StringFormat='Ціна: {0:C}'}"/>
+
+                                    <Button
+                                Text="Редагувати"
+                                CornerRadius="8"
+                                HeightRequest="36"
+                                Clicked="OnEditProductClicked"
+                                CommandParameter="{Binding Id}" />
+                                </VerticalStackLayout>
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <Grid x:Name="LoaderOverlay"
+            BackgroundColor="#80000000"
+            IsVisible="False"
+            AbsoluteLayout.LayoutBounds="0,0,1,1"
+            AbsoluteLayout.LayoutFlags="All">
+            <ActivityIndicator IsRunning="True"
+               Color="{StaticResource PrimaryDark}"
+               WidthRequest="60"
+               HeightRequest="60"
+               VerticalOptions="Center"
+               HorizontalOptions="Center"/>
+        </Grid>
+    </AbsoluteLayout>
+</ContentPage>
+
+

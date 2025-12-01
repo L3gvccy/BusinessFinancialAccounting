@@ -1,0 +1,60 @@
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Class="MAUI.Pages.LoginPage"
+    Title="Вхід">
+
+    <ScrollView>
+        <Grid>
+            <Grid VerticalOptions="Center" HorizontalOptions="Center">
+
+                <!-- Обмеження ширини для різних пристроїв -->
+                <VerticalStackLayout
+                    WidthRequest="{OnIdiom Phone=380, Tablet=420, Desktop=420}"
+                    Padding="20"
+                    Spacing="20">
+
+                    <Label 
+                        Text="Авторизація"
+                        FontSize="28"
+                        FontAttributes="Bold"
+                        HorizontalOptions="Center" />
+
+                    <!-- Username -->
+                    <Entry
+                        x:Name="UsernameEntry"
+                        Placeholder="Ім'я користувача"
+                        HeightRequest="50" />
+
+                    <!-- Password -->
+                    <Entry
+                        x:Name="PasswordEntry"
+                        Placeholder="Пароль"
+                        IsPassword="True"
+                        HeightRequest="50" />
+
+                    <!-- Login Button (default style) -->
+                    <Button
+                        Text="Увійти"
+                        Clicked="OnLoginClicked"
+                        HeightRequest="52"
+                        CornerRadius="12" />
+
+                    <!-- Register Button: прозора + обводка -->
+                    <Button
+                        Text="Створити акаунт"
+                        Clicked="OnRegisterClicked"
+                        BackgroundColor="Transparent"
+                        BorderColor="{DynamicResource PrimaryDark}"
+                        TextColor="{DynamicResource Gray200}"
+                        BorderWidth="2"
+                        HeightRequest="52"
+                        CornerRadius="12" />
+
+                </VerticalStackLayout>
+
+            </Grid>
+        </Grid>
+    </ScrollView>
+
+</ContentPage>

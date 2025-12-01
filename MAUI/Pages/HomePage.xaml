@@ -1,0 +1,70 @@
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="MAUI.Pages.HomePage"
+             Title="Головна">
+
+    <ScrollView>
+        <VerticalStackLayout
+            Padding="20"
+            Spacing="30"
+            HorizontalOptions="Center"
+            WidthRequest="{OnIdiom Phone=380, Tablet=420, Desktop=640}">
+
+            <!-- Заголовок -->
+            <VerticalStackLayout HorizontalOptions="Center">
+                <Label
+                    Text="Ведення фінансового обліку малого бізнесу"
+                    FontSize="28"
+                    FontAttributes="Bold"
+                    HorizontalOptions="Center"
+                    HorizontalTextAlignment="Center"
+                    />
+                <Label
+                    Text="Автоматизований розрахунок податків та зручне управління фінансами"
+                    FontSize="16"
+                    HorizontalOptions="Center"
+                    HorizontalTextAlignment="Center"
+                    />
+            </VerticalStackLayout>
+
+            <!-- Картки функцій (одна під одною) -->
+            <VerticalStackLayout Spacing="20">
+
+                <!-- Картка 1 -->
+                <Border
+                    BackgroundColor="{DynamicResource PrimaryDark}"
+                    StrokeShape="RoundRectangle 12"
+                    Padding="15">
+                    <VerticalStackLayout Spacing="10">
+                        <Label Text="📊 Облік доходів та витрат" FontAttributes="Bold" FontSize="16" TextColor="White"/>
+                        <Label Text="Додавайте операції, відстежуйте прибутки та контролюйте витрати." FontSize="14" LineBreakMode="WordWrap" TextColor="White"/>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Картка 2 -->
+                <Border
+                    BackgroundColor="{DynamicResource PrimaryDark}"
+                    StrokeShape="RoundRectangle 12"
+                    Padding="15">
+                    <VerticalStackLayout Spacing="10">
+                        <Label Text="💰 Продаж товарів" FontAttributes="Bold" FontSize="16" TextColor="White"/>
+                        <Label Text="Легко відстежуйте наявність та продаж ваших товарів у режимі реального часу." FontSize="14" LineBreakMode="WordWrap" TextColor="White"/>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Картка 3 -->
+                <Border
+                    BackgroundColor="{DynamicResource PrimaryDark}"
+                    StrokeShape="RoundRectangle 12"
+                    Padding="15">
+                    <VerticalStackLayout Spacing="10">
+                        <Label Text="📑 Звіти та аналітика" FontAttributes="Bold" FontSize="16" TextColor="White"/>
+                        <Label Text="Формуйте фінансові звіти та аналізуйте розвиток бізнесу." FontSize="14" LineBreakMode="WordWrap" TextColor="White"/>
+                    </VerticalStackLayout>
+                </Border>
+
+            </VerticalStackLayout>
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>
